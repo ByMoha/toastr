@@ -108,6 +108,9 @@ const STRIP_FN = ({ svgText, selectors, removeHeader }) => {
         const bb = el.getBBox();
         if (bb.y + bb.height < vb.height * 0.045) { el.remove(); removed++; }
         else if (bb.y > vb.height * 0.96 && bb.width < vb.width * 0.1) { el.remove(); removed++; }
+        // some sets merge header + page number into one sparse full-height path
+        // (text blocks never exceed ~82% of the page height)
+        else if (bb.height > vb.height * 0.93) { el.remove(); removed++; }
       } catch (_) {}
     }
   }

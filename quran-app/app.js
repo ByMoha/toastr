@@ -40,7 +40,11 @@
     "hafs-svg":  { img: "assets/pages/hafs/596.svg",  kind: "page", riwaya: "hafs",  page: 596,
                    layoutUrl: "assets/data/layout/hafs/596.svg.json", juz: "الجزء الثلاثون" },
     "warsh-svg": { img: "assets/pages/warsh/300.svg", kind: "page", riwaya: "warsh", page: 300,
-                   layoutUrl: "assets/data/layout/warsh/300.svg.json", juz: "الجزء الخامس عشر" }
+                   layoutUrl: "assets/data/layout/warsh/300.svg.json", juz: "الجزء الخامس عشر" },
+    "qaloon-svg": { img: "assets/pages/qaloon/300.svg", kind: "page", riwaya: "qaloon", page: 300,
+                   layoutUrl: "assets/data/layout/qaloon/300.svg.json", juz: "الحزب الثلاثون" },
+    "douri-svg": { img: "assets/pages/douri/300.svg", kind: "page", riwaya: "douri", page: 300,
+                   layoutUrl: "assets/data/layout/douri/300.svg.json", juz: "الجزء الخامس عشر" }
   };
   var CYCLE = Object.keys(ART);
   var artMode = "baked";

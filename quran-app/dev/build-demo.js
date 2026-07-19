@@ -19,6 +19,8 @@ const bannerUri = dataUri('assets/ui/surah-banner.png');
 const svgUri = (f) => 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(ROOT, f)).toString('base64');
 const hafsSvg = svgUri('assets/pages/hafs/596.svg');
 const warshSvg = svgUri('assets/pages/warsh/300.svg');
+const qaloonSvg = svgUri('assets/pages/qaloon/300.svg');
+const douriSvg = svgUri('assets/pages/douri/300.svg');
 
 /* ---- slim data: only what page 596 needs ---- */
 const ayat = readJson('assets/data/ayat.json');
@@ -28,6 +30,8 @@ const pagemap = readJson('assets/data/pagemap.json');
 const layout596 = readJson('assets/data/layout/hafs/596.json');
 const layoutHafsSvg = readJson('assets/data/layout/hafs/596.svg.json');
 const layoutWarshSvg = readJson('assets/data/layout/warsh/300.svg.json');
+const layoutQaloonSvg = readJson('assets/data/layout/qaloon/300.svg.json');
+const layoutDouriSvg = readJson('assets/data/layout/douri/300.svg.json');
 
 // page-596 keys + the Warsh sample's ayat (Kahf 53-60)
 const keys = pagemap['596'].map(([s, a]) => s + ':' + a)
@@ -41,7 +45,9 @@ const inline = {
   layout: { 'hafs:596': layout596 },
   layoutByUrl: {
     'assets/data/layout/hafs/596.svg.json': layoutHafsSvg,
-    'assets/data/layout/warsh/300.svg.json': layoutWarshSvg
+    'assets/data/layout/warsh/300.svg.json': layoutWarshSvg,
+    'assets/data/layout/qaloon/300.svg.json': layoutQaloonSvg,
+    'assets/data/layout/douri/300.svg.json': layoutDouriSvg
   }
 };
 
@@ -76,7 +82,11 @@ window.__INLINE_ART = {
   "hafs-svg":  { img: ${JSON.stringify(hafsSvg)}, kind: "page", riwaya: "hafs", page: 596,
                  layoutUrl: "assets/data/layout/hafs/596.svg.json", juz: "الجزء الثلاثون" },
   "warsh-svg": { img: ${JSON.stringify(warshSvg)}, kind: "page", riwaya: "warsh", page: 300,
-                 layoutUrl: "assets/data/layout/warsh/300.svg.json", juz: "الجزء الخامس عشر" }
+                 layoutUrl: "assets/data/layout/warsh/300.svg.json", juz: "الجزء الخامس عشر" },
+  "qaloon-svg": { img: ${JSON.stringify(qaloonSvg)}, kind: "page", riwaya: "qaloon", page: 300,
+                 layoutUrl: "assets/data/layout/qaloon/300.svg.json", juz: "الحزب الثلاثون" },
+  "douri-svg": { img: ${JSON.stringify(douriSvg)}, kind: "page", riwaya: "douri", page: 300,
+                 layoutUrl: "assets/data/layout/douri/300.svg.json", juz: "الجزء الخامس عشر" }
 };
 window.__INLINE_TAG = ${JSON.stringify(tagUri)};
 </script>

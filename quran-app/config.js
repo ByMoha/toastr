@@ -78,8 +78,22 @@ window.QURAN_CONFIG = {
       medallion: { style: "gold-rosette", size: 46 },
       layout: (p) => `assets/data/layout/warsh/${p}.json`,
       sample: {}
+    },
+
+    douri: {
+      id: "douri",
+      label: "الدوري عن أبي عمرو",
+      dir: "rtl",
+      page: {
+        type: "svg",
+        src: (p) => `assets/pages/douri/${String(p).padStart(3, "0")}.svg`,
+        viewBox: { w: 804, h: 1748 }
+      },
+      medallion: { style: "gold-rosette", size: 46 },
+      layout: (p) => `assets/data/layout/douri/${p}.json`,
+      sample: {}
     }
 
-    // al-douri, shu'ba, … register the same way
+    // shu'ba, qunbul, … register the same way
   }
 };
