@@ -22,6 +22,8 @@ body{
   color:#111;
   overflow:hidden;
   -webkit-user-select:none; user-select:none;
+  -webkit-touch-callout:none;      /* iOS: no press-and-hold callout over the page */
+  touch-action:manipulation;
 }
 
 .app{
@@ -52,6 +54,7 @@ body{
   transform-origin:top left;
   background:var(--cream) var(--art) center top / 804px 1748px no-repeat;
   direction:rtl;
+  touch-action:none;                   /* fixed layout: keep long-press free of scroll/zoom gestures */
 }
 
 /* app-drawn aya-tag overlay — only visible for medallion-less page art */
