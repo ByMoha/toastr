@@ -24,12 +24,47 @@
   // Medallion overlay takes over. See config.js / ARCHITECTURE.md.
   var PAGE_BAKED_MEDALLIONS = true;
 
+  var medLayer = document.getElementById("medLayer");
+
+  // Live demo of swappable calligraphy on page 596, using two real page-art modes:
+  //   baked   = the design capture (aya-tags baked into the art)
+  //   overlay = medallion-less art + app-drawn aya-tags — the real SVG pipeline
+  var ART = {
+    baked:   { img: "assets/img/base.png",        overlay: false },
+    overlay: { img: "assets/img/base-notags.png", overlay: true }
+  };
+  var artMode = "baked";
+  function setArt(mode) {
+    var a = ART[mode]; if (!a) return;
+    artMode = mode;
+    stage.style.setProperty("--art", 'url("' + a.img + '")');
+    stage.classList.toggle("art-overlay", a.overlay);
+    PAGE_BAKED_MEDALLIONS = !a.overlay;
+  }
+  function cycleRiwaya() { setArt(artMode === "baked" ? "overlay" : "baked"); }
+
+  // build the app-drawn aya-tag overlay for the current page from layout data
+  function buildMedallions() {
+    if (!window.Data || !window.Medallion || !medLayer) return;
+    Data.layout("hafs", 596).then(function (doc) {
+      if (!doc) return;
+      medLayer.innerHTML = "";
+      doc.medallions.forEach(function (m) {
+        var el = Medallion.node(m.a, 44);
+        el.style.position = "absolute";
+        el.style.left = (m.x - 22) + "px";
+        el.style.top = (m.y - 22) + "px";
+        medLayer.appendChild(el);
+      });
+    });
+  }
+
   // map each hotspot id prefix -> surah number (page 596 sample surahs)
   var SURAH_OF = { layl: 92, duha: 93, sharh: 94 };
   function idToSA(id) { var p = id.split("-"); return { s: SURAH_OF[p[0]], a: +p[1] }; }
 
-  // load content data (non-blocking; the sheet's gharib fills in once ready)
-  if (window.Data) Data.load().catch(function () {});
+  // load content data (non-blocking; sheet gharib + aya-tag overlay fill in once ready)
+  if (window.Data) Data.load().then(buildMedallions).catch(function () {});
 
   /* -------- Ayah map: rects [x,y,w,h] in stage space -------- */
   // hero = the ayah documented in the reference (Ad-Duha : 3), with tafsir.
@@ -271,7 +306,11 @@
   fab.addEventListener("click", function (e) { e.stopPropagation(); toggleMenu(); });
   Array.prototype.forEach.call(document.querySelectorAll(".fab-item"), function (it) {
     it.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
-    it.addEventListener("click", function (e) { e.stopPropagation(); closeMenu(); });
+    it.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (it.dataset.i === "4") cycleRiwaya(); // demo: swap page-art / aya-tag mode
+      closeMenu();
+    });
   });
 
   /* -------- Sheet actions -------- */
@@ -285,5 +324,5 @@
   });
 
   // expose for debugging / screenshot harness
-  window.__quran = { selectAyah: selectAyah, closeSelection: closeSelection, setFabVisible: setFabVisible, openMenu: openMenu, closeMenu: closeMenu, fit: fit };
+  window.__quran = { selectAyah: selectAyah, closeSelection: closeSelection, setFabVisible: setFabVisible, openMenu: openMenu, closeMenu: closeMenu, fit: fit, setArt: setArt, cycleRiwaya: cycleRiwaya };
 })();

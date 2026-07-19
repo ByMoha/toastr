@@ -46,12 +46,17 @@ body{
 }
 
 .stage{
+  --art: url("assets/img/base.png");   /* active page art — swapped by the riwāya switcher */
   position:absolute; top:0; left:0;
   width:804px; height:1748px;
   transform-origin:top left;
-  background:var(--cream) url("assets/img/base.png") center top / 804px 1748px no-repeat;
+  background:var(--cream) var(--art) center top / 804px 1748px no-repeat;
   direction:rtl;
 }
+
+/* app-drawn aya-tag overlay — only visible for medallion-less page art */
+.med-layer{ position:absolute; inset:0; z-index:3; pointer-events:none; display:none; }
+.stage.art-overlay .med-layer{ display:block; }
 
 /* ---------- Tap targets ---------- */
 .hits{ position:absolute; inset:0; z-index:5; }
@@ -83,7 +88,7 @@ body{
 /* clean clip of the page multiplied over the dim -> glyphs stay black, cream stays dimmed */
 .hl-clip{
   position:absolute;
-  background-image:url("assets/img/base.png");
+  background-image:var(--art);
   background-repeat:no-repeat;
   background-size:804px 1748px;
   mix-blend-mode:multiply;
@@ -147,7 +152,7 @@ body{
 .sheet-ayah.show{ display:flex; }
 .sheet-ayah .clip{
   flex:0 0 auto;
-  background-image:url("assets/img/base.png");
+  background-image:var(--art);
   background-repeat:no-repeat;
 }
 .sheet-medallion{ flex:0 0 auto; }

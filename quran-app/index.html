@@ -12,7 +12,10 @@
   <div class="viewport" id="viewport">
     <div class="stage" id="stage">
 
-      <!-- Base reading page (screen 1) is the stage background image -->
+      <!-- Base reading page (screen 1) is the stage background image (var --art) -->
+
+      <!-- App-drawn aya-tag overlay (shown when the page art is medallion-less) -->
+      <div class="med-layer" id="medLayer" aria-hidden="true"></div>
 
       <!-- Transparent per-ayah tap targets -->
       <div class="hits" id="hits"></div>
