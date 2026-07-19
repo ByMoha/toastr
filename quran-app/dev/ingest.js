@@ -168,7 +168,57 @@ const STRIP_FN = ({ svgText, selectors }) => {
     if (riwaya) console.log(`next: set pages/viewBox for '${riwaya}' in config.js from the values above`);
   }
 
+  /* extract <clean.svg> --page N [--riwaya hafs] [--pagemap assets/data/pagemap.json] [--out file]
+   * Auto-extract ayah-digit positions from a stripped page and emit a layout doc.
+   * Digits are the small bare number glyphs (the aya-tag artwork is drawn behind
+   * them by the app). If a pagemap covering this riwāya's pagination is given,
+   * digits are assigned surah:ayah in RTL reading order (rows top→bottom,
+   * right→left within a row); otherwise positions only. */
+  else if (cmd === 'extract') {
+    const fin = args[1];
+    const pageNum = +opt('page', 0);
+    const riwaya = opt('riwaya', 'hafs');
+    const pagemapPath = opt('pagemap', null);
+    const out = opt('out', null);
+    const svgText = fs.readFileSync(fin, 'utf8');
+    const res = await withPage(async (page) => page.evaluate((svgText) => {
+      document.body.innerHTML = svgText;
+      const root = document.body.querySelector('svg');
+      const vb = root.viewBox.baseVal;
+      const digits = [];
+      for (const el of root.querySelectorAll('path')) {
+        const bb = el.getBBox();
+        if (bb.height > 3 && bb.height < 7 && bb.width < 12 &&
+            bb.y > vb.height * 0.05 && bb.y < vb.height * 0.95)
+          digits.push({ x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 });
+      }
+      return { vb: { w: vb.width, h: vb.height }, digits };
+    }, svgText));
+    // RTL reading order
+    const rows = [];
+    res.digits.sort((a, b) => a.y - b.y).forEach(d => {
+      const r = rows.find(r => Math.abs(r.y - d.y) < 5);
+      if (r) { r.items.push(d); } else rows.push({ y: d.y, items: [d] });
+    });
+    const ordered = rows.flatMap(r => r.items.sort((a, b) => b.x - a.x));
+    let ayat = null;
+    if (pagemapPath && pageNum) ayat = (JSON.parse(fs.readFileSync(pagemapPath, 'utf8'))[String(pageNum)] || null);
+    if (ayat && ayat.length !== ordered.length)
+      console.error(`WARN: ${ordered.length} digits but pagemap lists ${ayat.length} ayat — s:a left null`);
+    const ok = ayat && ayat.length === ordered.length;
+    const doc = {
+      page: pageNum, riwaya, coordinateSpace: 'svg-viewBox', viewBox: res.vb,
+      medallions: ordered.map((d, i) => ({
+        s: ok ? ayat[i][0] : null, a: ok ? ayat[i][1] : null,
+        x: +d.x.toFixed(2), y: +d.y.toFixed(2)
+      }))
+    };
+    const dest = out || fin.replace(/\.svg$/, '.layout.json');
+    fs.writeFileSync(dest, JSON.stringify(doc, null, 1));
+    console.log(`extracted ${ordered.length} digit positions -> ${dest}` + (ok ? ' (s:a assigned)' : ''));
+  }
+
   else {
-    console.log('usage: node dev/ingest.js unzip|inspect|strip|batch …  (see file header)');
+    console.log('usage: node dev/ingest.js unzip|inspect|strip|batch|extract …  (see file header)');
   }
 })();
