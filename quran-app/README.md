@@ -60,15 +60,29 @@ derived by detecting the gold medallions.
 ```
 index.html        markup + inline SVG icons
 styles.css        layout, device frame, sheet, menu, highlight
-app.js            scaling, ayah map, long-press + tap state machine
-assets/img/
-  base.png        the clean reading page (screen 1)
-  sheet-text.png  the ayah + tafsir shown in the sheet (screen 3)
-dev/              helper scripts used to measure/crop the design & screenshot-test
+config.js         riwāyāt (calligraphy) registry — page-art source + medallion style
+data.js           content loader + lookups (ayah text, gharib, surahs, pagemap)
+medallion.js      app-drawn aya-tag overlay (positioned from layout data)
+app.js            scaling, ayah map, long-press + tap state machine, sheet
+assets/data/      ayat.json · gharib.json · surahs.json · pagemap.json · layout/<riwaya>/<page>.json
+assets/img/       base.png (sample page) · base-notags.png (overlay demo)
+dev/              measurement/crop tools, screenshot harness, medallion-demo.html
 ```
 
+See **ARCHITECTURE.md** for the data-driven, swappable-calligraphy design and the
+exact contract for supplying SVG page-sets + aya-tag positions.
+
+## Content data
+The bottom sheet renders the **real per-ayah gharib gloss** (*الميسر في غريب القرآن*) for
+every ayah, keyed by `surah:ayah`, with the `﴿ ﴾` head-words emphasised. Full Quran text
+(imlā'ī), the 604-page↔ayah map, and 114-surah metadata are loaded from `assets/data/`.
+Arabic content renders with the device's Arabic font.
+
 ## Notes
-- Screen 5 (expanded menu) is an interpretation: its reference frame was not among the
-  supplied images, so it uses icon-only actions that fit the “expand in place” brief.
-- The **international view** (English translation + transliteration) is scaffolded to be
-  added next once its designs are provided.
+- **Calligraphy is swappable** (Hafs, Qaloon, …): each riwāya is a set of medallion-less
+  page files + an aya-tag position file; medallions are an app overlay. `dev/medallion-demo.html`
+  proves the overlay over medallion-less art.
+- Page 596 currently ships as the design capture (`sample` in config.js) until the SVG
+  page-set lands; then it becomes fully data-driven with the overlay active.
+- Screen 5 (expanded menu) is an interpretation — its reference frame wasn't supplied.
+- The **international view** (English translation + transliteration) is scaffolded for next.

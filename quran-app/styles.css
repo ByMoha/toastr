@@ -136,21 +136,33 @@ body{
   padding:26px 26px 30px;
   min-height:120px;
 }
-.sheet-text{ width:100%; height:auto; display:none; }
-.sheet-text.show{ display:block; }
 .sheet-ayah{
   display:none;
   justify-content:flex-start;
   align-items:center;
-  min-height:96px;
+  gap:16px;
+  min-height:92px;
+  padding:6px 8px 0 0;
 }
 .sheet-ayah.show{ display:flex; }
 .sheet-ayah .clip{
+  flex:0 0 auto;
   background-image:url("assets/img/base.png");
   background-repeat:no-repeat;
-  background-size:804px 1748px;
-  transform-origin:right center;
 }
+.sheet-medallion{ flex:0 0 auto; }
+.medallion-svg{ display:block; }
+
+/* gharib gloss — real per-ayah content (renders with the device's Arabic font) */
+.sheet-gharib{
+  margin-top:18px;
+  text-align:justify;
+  line-height:2.05;
+  font-size:30px;
+  color:#26262a;
+  font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic","Geeza Pro","Segoe UI",serif;
+}
+.qword{ color:#8a5a24; font-weight:600; }
 
 /* ---------- Floating primary menu (screens 4 & 5) ---------- */
 .fabwrap{

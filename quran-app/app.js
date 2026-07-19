@@ -12,14 +12,24 @@
   var overlay = document.getElementById("overlay");
   var hl = document.getElementById("hl");
   var sheet = document.getElementById("sheet");
-  var sheetText = document.getElementById("sheetText");
   var sheetAyah = document.getElementById("sheetAyah");
+  var sheetGharib = document.getElementById("sheetGharib");
   var fabwrap = document.getElementById("fabwrap");
   var fab = document.getElementById("fab");
   var actShare = document.getElementById("actShare");
   var actBookmark = document.getElementById("actBookmark");
 
-  sheetText.src = "assets/img/sheet-text.png";
+  // The sample page (596) ships as the design image with medallions baked in.
+  // A real SVG page-set is medallion-less, so this flips to false and the
+  // Medallion overlay takes over. See config.js / ARCHITECTURE.md.
+  var PAGE_BAKED_MEDALLIONS = true;
+
+  // map each hotspot id prefix -> surah number (page 596 sample surahs)
+  var SURAH_OF = { layl: 92, duha: 93, sharh: 94 };
+  function idToSA(id) { var p = id.split("-"); return { s: SURAH_OF[p[0]], a: +p[1] }; }
+
+  // load content data (non-blocking; the sheet's gharib fills in once ready)
+  if (window.Data) Data.load().catch(function () {});
 
   /* -------- Ayah map: rects [x,y,w,h] in stage space -------- */
   // hero = the ayah documented in the reference (Ad-Duha : 3), with tafsir.
@@ -116,26 +126,37 @@
   }
 
   /* -------- Sheet content -------- */
+  function renderGharib(txt) {
+    var esc = txt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // emphasise the Quranic head-words wrapped in ﴿ ﴾
+    return esc.replace(/﴿([^﴾]*)﴾/g, '<span class="qword">﴿$1﴾</span>');
+  }
+
   function fillSheet(a) {
-    if (a.hero) {
-      sheetText.classList.add("show");
-      sheetAyah.classList.remove("show");
-      sheetAyah.innerHTML = "";
-    } else {
-      sheetText.classList.remove("show");
-      sheetAyah.classList.add("show");
-      // preview the ayah's widest rect, enlarged, right-aligned
-      var best = a.rects.slice().sort(function (p, q) { return q[2] - p[2]; })[0];
-      var scale = 1.28;
-      var clip = document.createElement("div");
-      clip.className = "clip";
-      clip.style.width = best[2] + "px";
-      clip.style.height = best[3] + "px";
-      clip.style.backgroundPosition = (-best[0]) + "px " + (-best[1]) + "px";
-      clip.style.transform = "scale(" + scale + ")";
-      sheetAyah.innerHTML = "";
-      sheetAyah.appendChild(clip);
+    var sa = idToSA(a.id);
+    // ayah calligraphy: enlarged clip of the widest rect from the page art + aya-tag
+    var best = a.rects.slice().sort(function (p, q) { return q[2] - p[2]; })[0];
+    sheetAyah.classList.add("show");
+    sheetAyah.innerHTML = "";
+    var f = 1.3; // enlarge the ayah calligraphy in the sheet
+    var clip = document.createElement("div");
+    clip.className = "clip";
+    clip.style.width = Math.round(best[2] * f) + "px";
+    clip.style.height = Math.round(best[3] * f) + "px";
+    clip.style.backgroundSize = Math.round(804 * f) + "px " + Math.round(1748 * f) + "px";
+    clip.style.backgroundPosition = Math.round(-best[0] * f) + "px " + Math.round(-best[1] * f) + "px";
+    sheetAyah.appendChild(clip);
+    // draw the aya-tag only when the page art is medallion-less; the sample page
+    // (page 596 image) already carries baked medallions inside the clip.
+    if (window.Medallion && !PAGE_BAKED_MEDALLIONS) {
+      var med = Medallion.node(sa.a, 40);
+      med.classList.add("sheet-medallion");
+      sheetAyah.appendChild(med);
     }
+    // gharib gloss (الميسر في غريب القرآن) — real content, per ayah
+    var g = (window.Data && Data.gharibOf(sa.s, sa.a)) || "";
+    sheetGharib.innerHTML = g ? renderGharib(g) : "";
+    sheetGharib.style.display = g ? "" : "none";
   }
 
   /* -------- State machine -------- */
