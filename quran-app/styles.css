@@ -1,0 +1,222 @@
+/* ===== Quran digital — design replica =====
+   Stage coordinate system matches the reference screenshots: 804 x 1748.
+   Everything is authored in those px units and uniformly scaled to fit. */
+
+:root{
+  --stage-w: 804;
+  --stage-h: 1748;
+  --cream: #fefefa;
+  --dim: rgba(0,0,0,.68);
+  --rose: #633d45;
+  --ink: #1b1b1d;
+  --sheet-bg: #e7e7e8;
+  --sheet-grab: #b7b8ba;
+  --gold: #b07a3c;
+}
+
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; margin:0; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:#0d0d0f;
+  color:#111;
+  overflow:hidden;
+  -webkit-user-select:none; user-select:none;
+}
+
+.app{
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(120% 120% at 50% 0%, #26262a 0%, #131315 55%, #0b0b0d 100%);
+}
+
+/* The visible phone screen — size set in JS to keep 804:1748 ratio */
+.viewport{
+  position:relative;
+  overflow:hidden;
+  background:var(--cream);
+  border-radius:42px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.04) inset;
+}
+
+/* Full-bleed on real phones */
+@media (max-width:540px){
+  .app{ background:#000; }
+  .viewport{ border-radius:0; box-shadow:none; }
+}
+
+.stage{
+  position:absolute; top:0; left:0;
+  width:804px; height:1748px;
+  transform-origin:top left;
+  background:var(--cream) url("assets/img/base.png") center top / 804px 1748px no-repeat;
+  direction:rtl;
+}
+
+/* ---------- Tap targets ---------- */
+.hits{ position:absolute; inset:0; z-index:5; }
+.hit{
+  position:absolute;
+  background:transparent;
+  cursor:pointer;
+  border-radius:12px;
+}
+
+/* ---------- Dim + highlight overlay (screens 2 & 3) ---------- */
+.overlay{
+  position:absolute; inset:0; z-index:10;
+  opacity:0; visibility:hidden;
+  transition:opacity .22s ease, visibility 0s linear .22s;
+}
+.overlay.show{ opacity:1; visibility:visible; transition:opacity .22s ease; }
+
+.dim{ position:absolute; inset:0; background:var(--dim); }
+
+.hl{ position:absolute; inset:0; }
+
+/* rose marker band behind the selected ayah's words */
+.hl-rose{
+  position:absolute;
+  background:var(--rose);
+  border-radius:22px;
+}
+/* clean clip of the page multiplied over the dim -> glyphs stay black, cream stays dimmed */
+.hl-clip{
+  position:absolute;
+  background-image:url("assets/img/base.png");
+  background-repeat:no-repeat;
+  background-size:804px 1748px;
+  mix-blend-mode:multiply;
+}
+
+/* ---------- Bottom sheet (screen 3) ---------- */
+.sheet{
+  position:absolute; left:0; right:0; bottom:0; z-index:30;
+  background:var(--sheet-bg);
+  border-radius:30px 30px 0 0;
+  padding:12px 22px calc(22px + env(safe-area-inset-bottom));
+  transform:translateY(102%);
+  transition:transform .34s cubic-bezier(.22,.61,.36,1);
+  box-shadow:0 -12px 40px rgba(0,0,0,.18);
+  will-change:transform;
+}
+.sheet.show{ transform:translateY(0); }
+
+.sheet-grabber{
+  width:44px; height:5px; border-radius:3px;
+  background:var(--sheet-grab);
+  margin:2px auto 16px;
+}
+
+.sheet-actions{
+  display:flex; gap:16px;
+  direction:ltr;            /* share on the left, bookmark on the right (play removed) */
+  margin-bottom:16px;
+}
+.pill{
+  flex:1 1 0;
+  height:92px;
+  border:none; outline:none;
+  background:#fff;
+  border-radius:26px;
+  display:flex; align-items:center; justify-content:center;
+  color:#141416;
+  box-shadow:0 1px 2px rgba(0,0,0,.05);
+  cursor:pointer;
+  transition:transform .12s ease, background .12s ease;
+}
+.pill:active{ transform:scale(.97); background:#f3f3f4; }
+.pill svg{ width:42px; height:42px; }
+.pill.saved{ color:var(--gold); }
+.pill.saved svg path{ fill:var(--gold); }
+
+.sheet-card{
+  background:#fff;
+  border-radius:30px;
+  padding:26px 26px 30px;
+  min-height:120px;
+}
+.sheet-text{ width:100%; height:auto; display:none; }
+.sheet-text.show{ display:block; }
+.sheet-ayah{
+  display:none;
+  justify-content:flex-start;
+  align-items:center;
+  min-height:96px;
+}
+.sheet-ayah.show{ display:flex; }
+.sheet-ayah .clip{
+  background-image:url("assets/img/base.png");
+  background-repeat:no-repeat;
+  background-size:804px 1748px;
+  transform-origin:right center;
+}
+
+/* ---------- Floating primary menu (screens 4 & 5) ---------- */
+.fabwrap{
+  position:absolute; left:50%; bottom:34px; z-index:20;
+  transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center;
+  opacity:0; visibility:hidden;
+  transition:opacity .25s ease, visibility 0s linear .25s;
+}
+.fabwrap.visible{ opacity:1; visibility:visible; transition:opacity .25s ease; }
+
+.fab{
+  position:relative;
+  width:132px; height:132px;
+  border:none; outline:none; cursor:pointer;
+  border-radius:50%;
+  background:
+    radial-gradient(closest-side, #ffffff 68%, rgba(255,255,255,.86) 82%, rgba(255,255,255,0) 100%);
+  box-shadow:
+    0 0 34px 14px rgba(255,255,255,.72),
+    0 10px 26px rgba(60,40,20,.16),
+    0 2px 6px rgba(0,0,0,.10);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .2s ease;
+}
+.fab:active{ transform:scale(.96); }
+.fab-icon svg{ width:44px; height:44px; display:block; }
+.fab-icon .bar{ fill:#4a4a4c; transition:transform .28s cubic-bezier(.2,.7,.3,1), opacity .2s ease; transform-origin:center; }
+.fabwrap[data-open="true"] .fab-icon .b1{ transform:translateY(3.5px) rotate(45deg); }
+.fabwrap[data-open="true"] .fab-icon .b2{ transform:translateY(-3.5px) rotate(-45deg); }
+
+/* expanded items sit above the button, revealed in place */
+.fab-items{
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  margin-bottom:18px;
+  pointer-events:none;
+}
+.fab-item{
+  width:84px; height:84px; border:none; cursor:pointer;
+  border-radius:50%;
+  background:#fff;
+  color:#3d3d3f;
+  box-shadow:0 8px 22px rgba(60,40,20,.16), 0 1px 3px rgba(0,0,0,.10);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(26px) scale(.6);
+  transition:opacity .26s ease, transform .3s cubic-bezier(.2,.8,.3,1.2);
+}
+.fab-item svg{ width:34px; height:34px; }
+.fabwrap[data-open="true"] .fab-items{ pointer-events:auto; }
+.fabwrap[data-open="true"] .fab-item{ opacity:1; transform:translateY(0) scale(1); }
+.fabwrap[data-open="true"] .fab-item:nth-child(5){ transition-delay:.02s; }
+.fabwrap[data-open="true"] .fab-item:nth-child(4){ transition-delay:.06s; }
+.fabwrap[data-open="true"] .fab-item:nth-child(3){ transition-delay:.10s; }
+.fabwrap[data-open="true"] .fab-item:nth-child(2){ transition-delay:.14s; }
+.fabwrap[data-open="true"] .fab-item:nth-child(1){ transition-delay:.18s; }
+.fab-item:active{ transform:scale(.92); }
+
+/* subtle scrim behind the expanded menu so it reads over the page */
+.menu-scrim{
+  position:absolute; inset:0; z-index:19;
+  background:rgba(250,248,244,0);
+  opacity:0; visibility:hidden;
+  transition:opacity .25s ease, visibility 0s linear .25s;
+}
+.menu-scrim.show{
+  background:rgba(248,246,242,.35);
+  backdrop-filter:blur(1.5px);
+  opacity:1; visibility:visible; transition:opacity .25s ease;
+}

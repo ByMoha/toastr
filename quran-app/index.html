@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#fefefa" />
+<title>القرآن الكريم</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app" id="app">
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+
+      <!-- Base reading page (screen 1) is the stage background image -->
+
+      <!-- Transparent per-ayah tap targets -->
+      <div class="hits" id="hits"></div>
+
+      <!-- Dim + highlight overlay (screens 2 & 3) -->
+      <div class="overlay" id="overlay" aria-hidden="true">
+        <div class="dim" id="dim"></div>
+        <div class="hl" id="hl"></div>
+      </div>
+
+      <!-- Bottom sheet (screen 3) -->
+      <div class="sheet" id="sheet" aria-hidden="true">
+        <div class="sheet-grabber"></div>
+        <div class="sheet-actions">
+          <button class="pill" id="actShare" aria-label="مشاركة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 15V3.5"/><path d="M8.5 6.8 12 3.2l3.5 3.6"/>
+              <path d="M7 10H6a2.2 2.2 0 0 0-2.2 2.2v6.4A2.2 2.2 0 0 0 6 20.8h12a2.2 2.2 0 0 0 2.2-2.2v-6.4A2.2 2.2 0 0 0 18 10h-1"/>
+            </svg>
+          </button>
+          <button class="pill" id="actBookmark" aria-label="حفظ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="sheet-card" id="sheetCard">
+          <img class="sheet-text" id="sheetText" alt="" />
+          <div class="sheet-ayah" id="sheetAyah"></div>
+        </div>
+      </div>
+
+      <!-- Floating primary menu (screens 4 & 5) -->
+      <div class="fabwrap" id="fabwrap" data-open="false" aria-hidden="true">
+        <div class="fab-items" id="fabItems">
+          <button class="fab-item" data-i="1" aria-label="الفهرس">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h11"/><path d="M8 12h11"/><path d="M8 18h11"/><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="fab-item" data-i="2" aria-label="العلامات">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/></svg>
+          </button>
+          <button class="fab-item" data-i="3" aria-label="بحث">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.6-3.6"/></svg>
+          </button>
+          <button class="fab-item" data-i="4" aria-label="الإعدادات">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>
+          </button>
+          <button class="fab-item" data-i="5" aria-label="الوضع الليلي">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
+          </button>
+        </div>
+        <button class="fab" id="fab" aria-label="القائمة">
+          <span class="fab-icon" id="fabIcon">
+            <svg viewBox="0 0 40 40" aria-hidden="true">
+              <rect class="bar b1" x="8" y="15" width="24" height="3.4" rx="1.7"/>
+              <rect class="bar b2" x="8" y="22" width="24" height="3.4" rx="1.7"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
