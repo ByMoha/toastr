@@ -38,7 +38,7 @@ window.Medallion = {
     num.style.cssText =
       "position:absolute;left:" + (a.cx * 100) + "%;top:" + (a.cy * 100) + "%;" +
       "transform:translate(-50%,-50%);" +
-      "font-family:'Amiri Quran','Scheherazade New','Noto Naskh Arabic',serif;" +
+      "font-family:'HafsSmart','Amiri Quran','Scheherazade New','Noto Naskh Arabic',serif;" +
       "font-size:" + Math.round(size * a.numScale) + "px;line-height:1;" +
       "color:var(--tag-num,#8a5a24);font-weight:600;";
     wrap.appendChild(img); wrap.appendChild(num);
@@ -69,7 +69,7 @@ window.Medallion = {
       <circle cx="${cx}" cy="${cy}" r="${rIn - 3}" fill="none" stroke="#8a5a24" stroke-width="1.4" opacity=".55"/>
       <circle cx="${cx}" cy="${cy}" r="${rIn - 9}" fill="#fdf8ee"/>
       <text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="central"
-            font-family="'Amiri Quran','Scheherazade New','Noto Naskh Arabic',serif"
+            font-family="'HafsSmart','Amiri Quran','Scheherazade New','Noto Naskh Arabic',serif"
             font-size="34" fill="#8a5a24" font-weight="600">${num}</text>
     </svg>`;
   },

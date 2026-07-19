@@ -17,6 +17,9 @@ const tagUri = dataUri('assets/ui/ayah-tag.png');
 const juzUri = dataUri('assets/ui/juz-header.png');
 const bannerUri = dataUri('assets/ui/surah-banner.png');
 const svgUri = (f) => 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(ROOT, f)).toString('base64');
+const fontUri = 'data:font/ttf;base64,' + fs.readFileSync(path.join(ROOT, 'assets/fonts/HafsSmart_08.ttf')).toString('base64');
+const orn2Banner = svgUri('assets/ui/orn2-banner.svg');
+const orn2Header = svgUri('assets/ui/orn2-header.svg');
 const hafsSvg = svgUri('assets/pages/hafs/596.svg');
 const warshSvg = svgUri('assets/pages/warsh/300.svg');
 const qaloonSvg = svgUri('assets/pages/qaloon/300.svg');
@@ -28,6 +31,7 @@ const gharib = readJson('assets/data/gharib.json');
 const surahs = readJson('assets/data/surahs.json');
 const pagemap = readJson('assets/data/pagemap.json');
 const layout596 = readJson('assets/data/layout/hafs/596.json');
+const uthmani = readJson('assets/data/uthmani.json');
 const layoutHafsSvg = readJson('assets/data/layout/hafs/596.svg.json');
 const layoutWarshSvg = readJson('assets/data/layout/warsh/300.svg.json');
 const layoutQaloonSvg = readJson('assets/data/layout/qaloon/300.svg.json');
@@ -40,6 +44,7 @@ const pick = (obj) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k,
 const inline = {
   ayat: pick(ayat),
   gharib: pick(gharib),
+  uthmani: pick(uthmani),
   surahs,
   pagemap: { '596': pagemap['596'] },
   layout: { 'hafs:596': layout596 },
@@ -64,6 +69,9 @@ if (!css.includes('url("assets/img/base.png")')) throw new Error('styles.css art
 css = css.split('url("assets/img/base.png")').join('url("' + bakedUri + '")');
 css = css.split('url("assets/ui/juz-header.png")').join('url("' + juzUri + '")');
 css = css.split('url("assets/ui/surah-banner.png")').join('url("' + bannerUri + '")');
+css = css.split('url("assets/fonts/HafsSmart_08.ttf")').join('url("' + fontUri + '")');
+css = css.split('url("assets/ui/orn2-banner.svg")').join('url("' + orn2Banner + '")');
+css = css.split('url("assets/ui/orn2-header.svg")').join('url("' + orn2Header + '")');
 
 /* ---- js modules ---- */
 const js = ['config.js', 'data.js', 'medallion.js', 'app.js'].map(read).join('\n;\n');

@@ -248,16 +248,26 @@
   var settings = document.getElementById("settings");
   var settingsDim = document.getElementById("settingsDim");
 
+  // riwāya cards preview the real page art of each calligraphy
+  Array.prototype.forEach.call(document.querySelectorAll(".rw-card[data-art]"), function (r) {
+    var a = ART[r.dataset.art];
+    if (a) r.querySelector(".rw-thumb").style.backgroundImage = 'url("' + a.img + '")';
+  });
+
   function persist(k, v) { try { localStorage.setItem("quran." + k, v); } catch (_) {} }
   function persisted(k) { try { return localStorage.getItem("quran." + k); } catch (_) { return null; } }
 
   function syncSettingsUI() {
-    Array.prototype.forEach.call(document.querySelectorAll(".riwaya-row"), function (r) {
+    Array.prototype.forEach.call(document.querySelectorAll(".rw-card"), function (r) {
       r.classList.toggle("active", r.dataset.art === artMode);
     });
     var deco = document.body.dataset.deco || "sepia";
-    Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (s) {
+    Array.prototype.forEach.call(document.querySelectorAll(".theme-chip"), function (s) {
       s.classList.toggle("active", s.dataset.deco === deco);
+    });
+    var orn = document.body.dataset.orn || "1";
+    Array.prototype.forEach.call(document.querySelectorAll(".orn-chip"), function (s) {
+      s.classList.toggle("active", s.dataset.orn === orn);
     });
   }
   function openSettings() {
@@ -274,7 +284,7 @@
   settingsDim.addEventListener("pointerdown", function (e) { e.stopPropagation(); closeSettings(); });
   settings.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
 
-  Array.prototype.forEach.call(document.querySelectorAll(".riwaya-row[data-art]"), function (r) {
+  Array.prototype.forEach.call(document.querySelectorAll(".rw-card[data-art]"), function (r) {
     if (!r.dataset.art) return;
     r.addEventListener("click", function () {
       setArt(r.dataset.art);
@@ -282,7 +292,7 @@
       syncSettingsUI();
     });
   });
-  Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (s) {
+  Array.prototype.forEach.call(document.querySelectorAll(".theme-chip"), function (s) {
     s.addEventListener("click", function () {
       var d = s.dataset.deco;
       if (d === "sepia") delete document.body.dataset.deco;
@@ -291,10 +301,21 @@
       syncSettingsUI();
     });
   });
+  Array.prototype.forEach.call(document.querySelectorAll(".orn-chip"), function (s) {
+    s.addEventListener("click", function () {
+      var o = s.dataset.orn;
+      if (o === "1") delete document.body.dataset.orn;
+      else document.body.dataset.orn = o;
+      persist("orn", o);
+      syncSettingsUI();
+    });
+  });
 
   // restore persisted choices; the live Hafs page is the default view
   var savedDeco = persisted("deco");
   if (savedDeco && savedDeco !== "sepia") document.body.dataset.deco = savedDeco;
+  var savedOrn = persisted("orn");
+  if (savedOrn && savedOrn !== "1") document.body.dataset.orn = savedOrn;
   artMode = ART[persisted("art")] ? persisted("art") : (ART["hafs-svg"] ? "hafs-svg" : "baked");
 
   // content data, then initial art state
@@ -356,30 +377,47 @@
 
   function fillSheet(e) {
     var sa = e.sa;
-    var best = e.rects.slice().sort(function (p, q) { return q[2] - p[2]; })[0].slice();
-    // page mode: if the SVG's bare digit sits in this rect, trim it out of the
-    // clip (the sheet draws the numbered tag itself)
-    if (ART[artMode].kind === "page" && e.med &&
-        e.med.x >= best[0] && e.med.x <= best[0] + best[2] &&
-        e.med.y >= best[1] && e.med.y <= best[1] + best[3]) {
-      var newX = e.med.x + TAG_STAGE * 0.55;
-      best[2] = Math.max(40, best[0] + best[2] - newX);
-      best[0] = newX;
-    }
     sheetAyah.classList.add("show");
     sheetAyah.innerHTML = "";
-    var f = Math.min(1.3, 640 / best[2]); // enlarge but keep inside the card
-    var clip = document.createElement("div");
-    clip.className = "clip";
-    clip.style.width = Math.round(best[2] * f) + "px";
-    clip.style.height = Math.round(best[3] * f) + "px";
-    clip.style.backgroundSize = Math.round(G.bgW * f) + "px " + Math.round(G.bgH * f) + "px";
-    clip.style.backgroundPosition = Math.round((G.offX - best[0]) * f) + "px " + Math.round((G.offY - best[1]) * f) + "px";
-    sheetAyah.appendChild(clip);
-    if (window.Medallion && !PAGE_BAKED_MEDALLIONS && sa.a != null) {
-      var med = Medallion.node(sa.a, 40);
-      med.classList.add("sheet-medallion");
-      sheetAyah.appendChild(med);
+
+    // Preferred: the ayah as live text in the official Hafs Smart font,
+    // with the numbered aya-tag artwork beside it.
+    var uth = (sa.s != null && window.Data && Data.uthmaniOf(sa.s, sa.a)) || "";
+    if (uth) {
+      var txt = document.createElement("div");
+      txt.className = "sheet-ayah-text";
+      // drop the font's trailing end-of-ayah mark — the design closes the
+      // ayah with the gold aya-tag artwork instead
+      txt.textContent = uth.replace(/\s*\u200F?[\uE900-\uEB00]$/, "");
+      sheetAyah.appendChild(txt);
+      if (window.Medallion) {
+        var med0 = Medallion.node(sa.a, 44);
+        med0.classList.add("sheet-medallion");
+        sheetAyah.appendChild(med0);
+      }
+    } else {
+      // Fallback: clip the calligraphy from the page art.
+      var best = e.rects.slice().sort(function (p, q) { return q[2] - p[2]; })[0].slice();
+      if (ART[artMode].kind === "page" && e.med &&
+          e.med.x >= best[0] && e.med.x <= best[0] + best[2] &&
+          e.med.y >= best[1] && e.med.y <= best[1] + best[3]) {
+        var newX = e.med.x + TAG_STAGE * 0.55;
+        best[2] = Math.max(40, best[0] + best[2] - newX);
+        best[0] = newX;
+      }
+      var f = Math.min(1.3, 640 / best[2]);
+      var clip = document.createElement("div");
+      clip.className = "clip";
+      clip.style.width = Math.round(best[2] * f) + "px";
+      clip.style.height = Math.round(best[3] * f) + "px";
+      clip.style.backgroundSize = Math.round(G.bgW * f) + "px " + Math.round(G.bgH * f) + "px";
+      clip.style.backgroundPosition = Math.round((G.offX - best[0]) * f) + "px " + Math.round((G.offY - best[1]) * f) + "px";
+      sheetAyah.appendChild(clip);
+      if (window.Medallion && !PAGE_BAKED_MEDALLIONS && sa.a != null) {
+        var med = Medallion.node(sa.a, 40);
+        med.classList.add("sheet-medallion");
+        sheetAyah.appendChild(med);
+      }
     }
     var g = (sa.s != null && window.Data && Data.gharibOf(sa.s, sa.a)) || "";
     sheetGharib.innerHTML = g ? renderGharib(g) : "";

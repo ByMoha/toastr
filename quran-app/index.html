@@ -63,25 +63,38 @@
         </div>
       </div>
 
-      <!-- Floating primary menu (screens 4 & 5) -->
+      <!-- Floating primary menu: gooey bubbles splitting horizontally from the
+           icon, which stays anchored at the side of the row -->
       <div class="fabwrap" id="fabwrap" data-open="false" aria-hidden="true">
-        <div class="fab-items" id="fabItems">
-          <button class="fab-item" data-i="1" aria-label="الفهرس">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h11"/><path d="M8 12h11"/><path d="M8 18h11"/><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
-          </button>
-          <button class="fab-item" data-i="2" aria-label="العلامات">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/></svg>
-          </button>
-          <button class="fab-item" data-i="3" aria-label="بحث">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.6-3.6"/></svg>
-          </button>
-          <button class="fab-item" data-i="4" aria-label="الإعدادات">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>
-          </button>
-          <button class="fab-item" data-i="5" aria-label="الوضع الليلي">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
-          </button>
+        <svg class="goo-defs" width="0" height="0" aria-hidden="true">
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur"/>
+            <feColorMatrix in="blur" mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" result="goo"/>
+            <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+          </filter>
+        </svg>
+        <!-- liquid layer: plain circles, blurred+contrast-fused by the filter -->
+        <div class="fab-goo" aria-hidden="true">
+          <span class="goo-ball goo-fab"></span>
+          <span class="goo-ball g1"></span>
+          <span class="goo-ball g2"></span>
+          <span class="goo-ball g3"></span>
+          <span class="goo-ball g4"></span>
         </div>
+        <!-- crisp layer: the actual buttons + icons, same geometry -->
+        <button class="fab-item i1" data-i="1" aria-label="الفهرس">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h11"/><path d="M8 12h11"/><path d="M8 18h11"/><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button class="fab-item i2" data-i="2" aria-label="العلامات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/></svg>
+        </button>
+        <button class="fab-item i3" data-i="3" aria-label="بحث">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.6-3.6"/></svg>
+        </button>
+        <button class="fab-item i4" data-i="4" aria-label="الإعدادات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>
+        </button>
         <button class="fab" id="fab" aria-label="القائمة">
           <span class="fab-icon" id="fabIcon">
             <svg viewBox="0 0 40 40" aria-hidden="true">
@@ -100,34 +113,67 @@
 
         <div class="settings-section">
           <div class="settings-label">الرواية</div>
-          <div class="settings-card" id="riwayaList">
-            <button class="riwaya-row" data-art="hafs-svg">
-              <span class="rw-name">حفص عن عاصم</span>
-              <span class="rw-check" aria-hidden="true"></span>
+          <div class="riwaya-cards" id="riwayaList">
+            <button class="rw-card" data-art="hafs-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">حفص</span>
             </button>
-            <button class="riwaya-row" data-art="warsh-svg">
-              <span class="rw-name">ورش عن نافع</span>
-              <span class="rw-check" aria-hidden="true"></span>
+            <button class="rw-card" data-art="warsh-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">ورش</span>
             </button>
-            <button class="riwaya-row" data-art="qaloon-svg">
-              <span class="rw-name">قالون عن نافع</span>
-              <span class="rw-check" aria-hidden="true"></span>
+            <button class="rw-card" data-art="qaloon-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">قالون</span>
             </button>
-            <button class="riwaya-row" data-art="douri-svg">
-              <span class="rw-name">الدوري عن أبي عمرو</span>
-              <span class="rw-check" aria-hidden="true"></span>
+            <button class="rw-card" data-art="douri-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">الدوري</span>
             </button>
           </div>
         </div>
 
         <div class="settings-section">
-          <div class="settings-label">لون الزخرفة</div>
-          <div class="settings-card swatches" id="swatchList">
-            <button class="swatch" data-deco="sepia" style="--sw:#b07a3c" aria-label="ذهبي"></button>
-            <button class="swatch" data-deco="green" style="--sw:#5c9a6b" aria-label="أخضر"></button>
-            <button class="swatch" data-deco="blue"  style="--sw:#5b7fa6" aria-label="أزرق"></button>
-            <button class="swatch" data-deco="mauve" style="--sw:#a66b95" aria-label="بنفسجي"></button>
-            <button class="swatch" data-deco="slate" style="--sw:#8a8a8a" aria-label="رمادي"></button>
+          <div class="settings-label">المظهر ولون الزخرفة</div>
+          <div class="theme-chips" id="swatchList">
+            <button class="theme-chip" data-deco="sepia" style="--sw:#b07a3c;--pp:#fefefa" aria-label="ذهبي">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">ذهبي</span>
+            </button>
+            <button class="theme-chip" data-deco="green" style="--sw:#57996a;--pp:#f2f8f2" aria-label="أخضر">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">أخضر</span>
+            </button>
+            <button class="theme-chip" data-deco="blue" style="--sw:#547ca7;--pp:#f1f6fb" aria-label="أزرق">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">أزرق</span>
+            </button>
+            <button class="theme-chip" data-deco="mauve" style="--sw:#a2689a;--pp:#faf3f8" aria-label="بنفسجي">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">بنفسجي</span>
+            </button>
+            <button class="theme-chip" data-deco="slate" style="--sw:#84848a;--pp:#f6f6f7" aria-label="رمادي">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">رمادي</span>
+            </button>
+            <button class="theme-chip" data-deco="dark" style="--sw:#c9a45e;--pp:#201f1d;--tx:#e8e2d5" aria-label="داكن">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">داكن</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">نمط الزخرفة</div>
+          <div class="orn-chips" id="ornList">
+            <button class="orn-chip" data-orn="1">
+              <span class="orn-prev p1" aria-hidden="true"></span>
+              <span class="chip-name">كلاسيكي</span>
+            </button>
+            <button class="orn-chip" data-orn="2">
+              <span class="orn-prev p2" aria-hidden="true"></span>
+              <span class="chip-name">أندلسي</span>
+            </button>
           </div>
         </div>
       </div>

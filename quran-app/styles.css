@@ -16,6 +16,26 @@
      CSS filter (e.g. hue-rotate/saturate) and a matching number colour */
   --tag-tint: none;
   --tag-num: #8a5a24;
+  --deco-accent: #b07a3c;
+}
+
+/* ornament style 2 (أندلسي): generated vector masks, tinted by the theme */
+body[data-orn="2"] .banner{
+  background:var(--deco-accent); filter:none;
+  -webkit-mask:url("assets/ui/orn2-banner.svg") center / 100% 100% no-repeat;
+  mask:url("assets/ui/orn2-banner.svg") center / 100% 100% no-repeat;
+}
+body[data-orn="2"] .juz-frame::before{
+  background:var(--deco-accent); filter:none;
+  -webkit-mask:url("assets/ui/orn2-header.svg") center / 100% 100% no-repeat;
+  mask:url("assets/ui/orn2-header.svg") center / 100% 100% no-repeat;
+}
+
+/* KFGQPC Uthmanic Hafs Smart v8 — renders the sheet's ayah as live text */
+@font-face{
+  font-family:"HafsSmart";
+  src:url("assets/fonts/HafsSmart_08.ttf") format("truetype");
+  font-display:swap;
 }
 
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -77,8 +97,8 @@ body{
   /* natural asset proportions (804x52) — decorations are never stretched */
   position:absolute; left:0; top:112px; width:804px; height:52px;
   direction:rtl;
-  font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic","Geeza Pro",serif;
-  font-size:23px; color:#3f3327;
+  font-family:"HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic","Geeza Pro",serif;
+  font-size:23px; color:var(--hdr-ink, #3f3327);
 }
 /* artwork on a pseudo-element so the decoration tint never touches the text */
 .juz-frame::before{
@@ -98,7 +118,7 @@ body{
 /* app-drawn page number (the SVG's own is stripped) */
 .page-num{
   position:absolute; left:0; width:804px; text-align:center;
-  font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
+  font-family:"HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
   font-size:34px; color:var(--tag-num);
 }
 .juz-frame span{
@@ -218,6 +238,15 @@ body{
   background-image:var(--art);
   background-repeat:no-repeat;
 }
+/* the ayah as live text in the official Hafs Smart font */
+.sheet-ayah-text{
+  flex:1 1 auto;
+  direction:rtl; text-align:right;
+  font-family:"HafsSmart",serif;
+  font-size:46px; line-height:1.9;
+  color:#141416;
+}
+body[data-deco="dark"] .sheet-ayah-text{ color:#eceae4; }
 .sheet-medallion{ flex:0 0 auto; }
 .medallion-svg{ display:block; }
 
@@ -232,67 +261,127 @@ body{
 }
 .qword{ color:#8a5a24; font-weight:600; }
 
-/* ---------- Floating primary menu (screens 4 & 5) ---------- */
+/* ---------- Floating primary menu: gooey horizontal bubbles ----------
+   The menu icon stays anchored at the side; option bubbles split out of it
+   horizontally with a liquid morph (SVG goo filter on a circles-only layer,
+   crisp icons in an unfiltered layer above with identical geometry). */
 .fabwrap{
   position:absolute; left:50%; bottom:34px; z-index:20;
-  transform:translateX(-50%);
-  display:flex; flex-direction:column; align-items:center;
+  width:0; height:0;
   opacity:0; visibility:hidden;
   transition:opacity .25s ease, visibility 0s linear .25s;
 }
 .fabwrap.visible{ opacity:1; visibility:visible; transition:opacity .25s ease; }
+.goo-defs{ position:absolute; }
 
+/* liquid layer */
+.fab-goo{
+  position:absolute; left:-450px; bottom:0; width:560px; height:132px;
+  filter:url(#goo);
+  pointer-events:none;
+}
+.goo-ball{
+  position:absolute; bottom:0; border-radius:50%; background:#fff;
+}
+.goo-fab{ right:0; width:132px; height:132px; }
+.goo-ball.g1, .goo-ball.g2, .goo-ball.g3, .goo-ball.g4{
+  width:64px; height:64px; bottom:34px; right:34px;
+  transform:translateX(0) scale(.25);
+  transition:transform .46s cubic-bezier(.3,1.15,.4,1);
+}
+/* bubbles split leftward out of the icon */
+.fabwrap[data-open="true"] .goo-ball.g1{ transform:translateX(-108px) scale(1); }
+.fabwrap[data-open="true"] .goo-ball.g2{ transform:translateX(-194px) scale(1); transition-delay:.05s; }
+.fabwrap[data-open="true"] .goo-ball.g3{ transform:translateX(-280px) scale(1); transition-delay:.10s; }
+.fabwrap[data-open="true"] .goo-ball.g4{ transform:translateX(-366px) scale(1); transition-delay:.15s; }
+
+/* crisp layer: the menu button, anchored at the row's side */
 .fab{
-  position:relative;
+  position:absolute; left:-66px; bottom:0;
   width:132px; height:132px;
   border:none; outline:none; cursor:pointer;
   border-radius:50%;
-  background:
-    radial-gradient(closest-side, #ffffff 68%, rgba(255,255,255,.86) 82%, rgba(255,255,255,0) 100%);
+  background:radial-gradient(closest-side, #ffffff 68%, rgba(255,255,255,.86) 82%, rgba(255,255,255,0) 100%);
   box-shadow:
     0 0 34px 14px rgba(255,255,255,.72),
     0 10px 26px rgba(60,40,20,.16),
     0 2px 6px rgba(0,0,0,.10);
   display:flex; align-items:center; justify-content:center;
-  transition:transform .2s ease;
 }
-.fab:active{ transform:scale(.96); }
 .fab-icon svg{ width:44px; height:44px; display:block; }
-.fab-icon .bar{ fill:#4a4a4c; transition:transform .28s cubic-bezier(.2,.7,.3,1), opacity .2s ease; transform-origin:center; }
+.fab-icon .bar{ fill:#4a4a4c; transition:transform .28s cubic-bezier(.2,.7,.3,1); transform-origin:center; }
 .fabwrap[data-open="true"] .fab-icon .b1{ transform:translateY(3.5px) rotate(45deg); }
 .fabwrap[data-open="true"] .fab-icon .b2{ transform:translateY(-3.5px) rotate(-45deg); }
 
-/* expanded items sit above the button, revealed in place */
-.fab-items{
-  display:flex; flex-direction:column; align-items:center; gap:16px;
-  margin-bottom:18px;
-  pointer-events:none;
-}
+/* crisp option icons — same travel as their goo bubbles */
 .fab-item{
-  width:84px; height:84px; border:none; cursor:pointer;
+  position:absolute; bottom:34px; left:-32px;
+  width:64px; height:64px; border:none; cursor:pointer;
   border-radius:50%;
-  background:#fff;
+  background:transparent;
   color:#3d3d3f;
-  box-shadow:0 8px 22px rgba(60,40,20,.16), 0 1px 3px rgba(0,0,0,.10);
   display:flex; align-items:center; justify-content:center;
-  opacity:0; transform:translateY(26px) scale(.6);
-  transition:opacity .26s ease, transform .3s cubic-bezier(.2,.8,.3,1.2);
+  opacity:0; pointer-events:none;
+  transform:translateX(0) scale(.25);
+  transition:transform .46s cubic-bezier(.3,1.15,.4,1), opacity .18s ease .1s;
 }
-.fab-item svg{ width:34px; height:34px; }
-.fabwrap[data-open="true"] .fab-items{ pointer-events:auto; }
-.fabwrap[data-open="true"] .fab-item{ opacity:1; transform:translateY(0) scale(1); }
-.fabwrap[data-open="true"] .fab-item:nth-child(5){ transition-delay:.02s; }
-.fabwrap[data-open="true"] .fab-item:nth-child(4){ transition-delay:.06s; }
-.fabwrap[data-open="true"] .fab-item:nth-child(3){ transition-delay:.10s; }
-.fabwrap[data-open="true"] .fab-item:nth-child(2){ transition-delay:.14s; }
-.fabwrap[data-open="true"] .fab-item:nth-child(1){ transition-delay:.18s; }
-.fab-item:active{ transform:scale(.92); }
+.fab-item svg{ width:28px; height:28px; }
+.fabwrap[data-open="true"] .fab-item{ opacity:1; pointer-events:auto; }
+.fabwrap[data-open="true"] .fab-item.i1{ transform:translateX(-108px) scale(1); }
+.fabwrap[data-open="true"] .fab-item.i2{ transform:translateX(-194px) scale(1); transition-delay:.05s; }
+.fabwrap[data-open="true"] .fab-item.i3{ transform:translateX(-280px) scale(1); transition-delay:.10s; }
+.fabwrap[data-open="true"] .fab-item.i4{ transform:translateX(-366px) scale(1); transition-delay:.15s; }
 
-/* ---------- Decoration color themes (tint the sepia artwork) ---------- */
-body[data-deco="green"] .stage{ --tag-tint:hue-rotate(95deg) saturate(.8);  --tag-num:#3f7a4c; }
-body[data-deco="blue"]  .stage{ --tag-tint:hue-rotate(185deg) saturate(.7); --tag-num:#3b5f8a; }
-body[data-deco="mauve"] .stage{ --tag-tint:hue-rotate(280deg) saturate(.7); --tag-num:#8a4a6b; }
-body[data-deco="slate"] .stage{ --tag-tint:saturate(0) brightness(.97);     --tag-num:#5a5a5c; }
+/* ---------- Themes: decoration tint + matching paper ----------
+   Each theme recolors the artwork AND shifts the paper to the whitest
+   version of the same hue, keeping reading comfortable. */
+body[data-deco="green"]{ --cream:#f2f8f2; --tag-tint:hue-rotate(95deg) saturate(.8);  --tag-num:#3f7a4c; --deco-accent:#57996a; }
+body[data-deco="blue"] { --cream:#f1f6fb; --tag-tint:hue-rotate(185deg) saturate(.7); --tag-num:#3b5f8a; --deco-accent:#547ca7; }
+body[data-deco="mauve"]{ --cream:#faf3f8; --tag-tint:hue-rotate(280deg) saturate(.7); --tag-num:#8a4a6b; --deco-accent:#a2689a; }
+body[data-deco="slate"]{ --cream:#f6f6f7; --tag-tint:saturate(0) brightness(.97);     --tag-num:#5a5a5c; --deco-accent:#84848a; }
+
+/* the status strip is a capture crop on cream — blend it onto the paper */
+.stage.pagemode .status-strip{ background-color:var(--cream); background-blend-mode:multiply; }
+
+/* ---------- Dark theme ---------- */
+body[data-deco="dark"]{
+  --cream:#201f1d;
+  --tag-tint:brightness(1.08);
+  --tag-num:#c9a45e;
+  --deco-accent:#c9a45e;
+  --hdr-ink:#d9d0c0;
+  --sheet-bg:#242426;
+  --sheet-grab:#565658;
+  --dim:rgba(0,0,0,.72);
+}
+/* the page art is pure black vector on transparent — invert it to paper-white */
+body[data-deco="dark"] .stage.pagemode .page-slot{ filter:invert(1) brightness(.92); }
+body[data-deco="dark"] .stage.pagemode .status-strip{
+  filter:invert(1); background-color:transparent; background-blend-mode:normal; opacity:.9;
+}
+/* highlight: screen-blend the inverted glyphs (the dual of multiply) */
+body[data-deco="dark"] .hl-clip{ filter:invert(1) brightness(.92); mix-blend-mode:screen; }
+body[data-deco="dark"] .hl-rose{ background:#7d4551; }
+/* sheet + settings surfaces */
+body[data-deco="dark"] .pill{ background:#343436; color:#e8e8ea; }
+body[data-deco="dark"] .pill:active{ background:#3d3d40; }
+body[data-deco="dark"] .sheet-card,
+body[data-deco="dark"] .settings-card{ background:#2c2c2e; }
+body[data-deco="dark"] .sheet-ayah .clip{ filter:invert(1) brightness(.92); }
+body[data-deco="dark"] .sheet-gharib{ color:#e6e6e8; }
+body[data-deco="dark"] .qword{ color:#d9a55f; }
+body[data-deco="dark"] .settings-title{ color:#f2f2f4; }
+body[data-deco="dark"] .settings-label{ color:#9a9aa0; }
+body[data-deco="dark"] .rw-card{ background:#2c2c2e; }
+body[data-deco="dark"] .rw-card .rw-name{ color:#e8e8ea; }
+body[data-deco="dark"] .rw-thumb{ filter:invert(1) brightness(.9); }
+body[data-deco="dark"] .chip-name{ color:#cfcfd4; }
+body[data-deco="dark"] .menu-scrim.show{ background:rgba(20,20,22,.45); }
+body[data-deco="dark"] .fab-goo .goo-ball,
+body[data-deco="dark"] .fab{ background:#343436; }
+body[data-deco="dark"] .fab{ background:radial-gradient(closest-side,#343436 68%, rgba(52,52,54,.85) 82%, rgba(52,52,54,0) 100%); box-shadow:0 0 34px 14px rgba(0,0,0,.4), 0 10px 26px rgba(0,0,0,.4); }
+body[data-deco="dark"] .fab-item{ color:#e6e6e8; }
+body[data-deco="dark"] .fab-icon .bar{ fill:#e6e6e8; }
 
 /* ---------- Settings page ---------- */
 .settings-dim{
@@ -324,46 +413,107 @@ body[data-deco="slate"] .stage{ --tag-tint:saturate(0) brightness(.97);     --ta
 .settings-card{
   background:#fff; border-radius:26px; overflow:hidden;
 }
-.riwaya-row{
-  display:flex; align-items:center; justify-content:space-between;
-  width:100%; padding:24px 26px;
-  border:none; background:none; cursor:pointer;
-  border-bottom:1.5px solid #f900; border-bottom-color:#efeff0;
-  font-family:inherit; text-align:right;
+/* riwāya selection: thumbnail cards showing each calligraphy's real page */
+.riwaya-cards{
+  display:flex; gap:16px;
 }
-.riwaya-row:last-child{ border-bottom:none; }
-.riwaya-row:active{ background:#f5f5f6; }
-.riwaya-row[disabled]{ cursor:default; }
-.riwaya-row[disabled] .rw-name{ color:#b5b5b8; }
-.rw-name{
-  font:28px/1.4 "Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
+.rw-card{
+  flex:1 1 0; border:none; cursor:pointer; padding:10px 10px 12px;
+  background:#fff; border-radius:24px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  box-shadow:0 1px 2px rgba(0,0,0,.05);
+  outline:3px solid transparent; outline-offset:-3px;
+  transition:transform .15s ease, outline-color .18s ease;
+  position:relative;
+}
+.rw-card:active{ transform:scale(.96); }
+.rw-card.active{ outline-color:var(--gold); }
+.rw-card.active::after{
+  content:""; position:absolute; top:16px; left:16px;
+  width:34px; height:34px; border-radius:50%; background:var(--gold);
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>');
+  background-size:20px; background-position:center; background-repeat:no-repeat;
+  box-shadow:0 2px 6px rgba(0,0,0,.22);
+}
+.rw-thumb{
+  width:100%; height:158px; border-radius:16px;
+  background-color:#fdfcf8;
+  background-size:290% auto;          /* zoom into the top lines of the page */
+  background-position:50% 12%;
+  background-repeat:no-repeat;
+  border:1px solid #eceae4;
+}
+.rw-card .rw-name{
+  font:26px/1.2 "Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
   color:#1c1c1e;
 }
-.rw-soon{
-  font:22px/1 -apple-system,"Segoe UI",sans-serif; color:#b5b5b8;
-  background:#f2f2f3; border-radius:999px; padding:8px 16px;
+
+/* theme selection: mini page previews (paper + decoration + text lines) */
+.theme-chips{
+  display:flex; gap:14px;
 }
-.rw-check{
-  width:34px; height:34px; border-radius:50%;
-  border:2.5px solid #d2d2d6; position:relative;
+.theme-chip{
+  flex:1 1 0; border:none; cursor:pointer; padding:0;
+  background:none;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  transition:transform .15s ease;
 }
-.riwaya-row.active .rw-check{ border-color:var(--gold); background:var(--gold); }
-.riwaya-row.active .rw-check::after{
-  content:""; position:absolute; left:11px; top:5px;
-  width:8px; height:16px; border:solid #fff; border-width:0 3.5px 3.5px 0;
-  transform:rotate(45deg);
+.theme-chip:active{ transform:scale(.94); }
+.chip-page{
+  width:100%; height:112px; border-radius:18px;
+  background:var(--pp);
+  border:1px solid rgba(0,0,0,.08);
+  outline:3.5px solid transparent; outline-offset:-3.5px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
+  transition:outline-color .18s ease, box-shadow .18s ease;
 }
-.settings-card.swatches{
-  display:flex; gap:22px; padding:24px 26px; justify-content:flex-start;
+.theme-chip.active .chip-page{
+  outline-color:var(--sw);
+  box-shadow:0 4px 14px rgba(0,0,0,.12);
 }
-.swatch{
-  width:74px; height:74px; border-radius:50%;
-  border:3px solid #e3e3e5; cursor:pointer;
-  background:radial-gradient(circle at 35% 32%, #fff6 0 18%, transparent 20%), var(--sw);
-  transition:transform .15s ease, border-color .15s ease;
+.chip-page i{
+  display:block; width:62%; height:5px; border-radius:3px;
+  background:var(--tx, #57524a); opacity:.55;
 }
-.swatch:active{ transform:scale(.92); }
-.swatch.active{ border-color:#1c1c1e; box-shadow:0 0 0 3px #fff inset; }
+.chip-page b{
+  display:block; width:26px; height:26px; border-radius:50%;
+  background:var(--sw);
+  box-shadow:0 0 0 4.5px color-mix(in srgb, var(--sw) 22%, var(--pp));
+}
+.chip-name{
+  font:600 20px/1 -apple-system,"Segoe UI",sans-serif; color:#6c6c70;
+}
+
+/* ornament style chips */
+.orn-chips{ display:flex; gap:16px; }
+.orn-chip{
+  flex:1 1 0; border:none; cursor:pointer; padding:0;
+  background:none; display:flex; flex-direction:column; align-items:center; gap:8px;
+  transition:transform .15s ease;
+}
+.orn-chip:active{ transform:scale(.95); }
+.orn-prev{
+  width:100%; height:88px; border-radius:18px;
+  background-color:var(--cream);
+  border:1px solid rgba(0,0,0,.08);
+  outline:3.5px solid transparent; outline-offset:-3.5px;
+  position:relative; overflow:hidden;
+  transition:outline-color .18s ease;
+}
+.orn-chip.active .orn-prev{ outline-color:var(--gold); }
+.orn-prev::after{
+  content:""; position:absolute; left:8%; right:8%; top:50%; height:44px;
+  transform:translateY(-50%);
+}
+.orn-prev.p1::after{
+  background:url("assets/ui/surah-banner.png") center / contain no-repeat;
+  filter:var(--tag-tint);
+}
+.orn-prev.p2::after{
+  background:var(--deco-accent);
+  -webkit-mask:url("assets/ui/orn2-banner.svg") center / contain no-repeat;
+  mask:url("assets/ui/orn2-banner.svg") center / contain no-repeat;
+}
 
 /* subtle scrim behind the expanded menu so it reads over the page */
 .menu-scrim{

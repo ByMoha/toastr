@@ -6,7 +6,7 @@
  *   pagemap.json  "page"       -> [[surah,ayah], ...]    (604)
  */
 window.Data = {
-  ayat: null, gharib: null, surahs: null, pagemap: null,
+  ayat: null, gharib: null, surahs: null, pagemap: null, uthmani: null,
   _layout: {},          // cache: `${riwaya}:${page}` -> layout doc
   ready: false,
 
@@ -17,18 +17,24 @@ window.Data = {
       const d = window.__INLINE_DATA;
       this.ayat = d.ayat || {}; this.gharib = d.gharib || {};
       this.surahs = d.surahs || []; this.pagemap = d.pagemap || {};
+      this.uthmani = d.uthmani || {};
       this.ready = true;
       return this;
     }
     const base = "assets/data/";
     const get = (f) => fetch(base + f).then((r) => r.json());
-    const [ayat, gharib, surahs, pagemap] = await Promise.all([
-      get("ayat.json"), get("gharib.json"), get("surahs.json"), get("pagemap.json")
+    const [ayat, gharib, surahs, pagemap, uthmani] = await Promise.all([
+      get("ayat.json"), get("gharib.json"), get("surahs.json"), get("pagemap.json"),
+      get("uthmani.json").catch(() => ({}))
     ]);
     this.ayat = ayat; this.gharib = gharib; this.surahs = surahs; this.pagemap = pagemap;
+    this.uthmani = uthmani;
     this.ready = true;
     return this;
   },
+
+  // Uthmani ayah text encoded for the KFGQPC Hafs Smart font
+  uthmaniOf(s, a) { return (this.uthmani && this.uthmani[s + ":" + a]) || ""; },
 
   ayahText(s, a) { return (this.ayat && this.ayat[s + ":" + a]) || ""; },
   gharibOf(s, a) { return (this.gharib && this.gharib[s + ":" + a]) || ""; },
