@@ -29,7 +29,7 @@
   // Live demo of swappable calligraphy on page 596, using two real page-art modes:
   //   baked   = the design capture (aya-tags baked into the art)
   //   overlay = medallion-less art + app-drawn aya-tags — the real SVG pipeline
-  var ART = {
+  var ART = window.__INLINE_ART || {
     baked:   { img: "assets/img/base.png",        overlay: false },
     overlay: { img: "assets/img/base-notags.png", overlay: true }
   };

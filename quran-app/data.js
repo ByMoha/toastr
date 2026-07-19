@@ -11,6 +11,15 @@ window.Data = {
   ready: false,
 
   async load() {
+    // Embed mode: a single-file build (demo artifact, offline bundle) supplies
+    // the datasets inline instead of fetching them.
+    if (window.__INLINE_DATA) {
+      const d = window.__INLINE_DATA;
+      this.ayat = d.ayat || {}; this.gharib = d.gharib || {};
+      this.surahs = d.surahs || []; this.pagemap = d.pagemap || {};
+      this.ready = true;
+      return this;
+    }
     const base = "assets/data/";
     const get = (f) => fetch(base + f).then((r) => r.json());
     const [ayat, gharib, surahs, pagemap] = await Promise.all([
@@ -38,6 +47,8 @@ window.Data = {
   // per-page aya-tag / line layout for a riwāya (cached)
   async layout(riwaya, page) {
     const key = riwaya + ":" + page;
+    if (window.__INLINE_DATA && window.__INLINE_DATA.layout && window.__INLINE_DATA.layout[key])
+      return window.__INLINE_DATA.layout[key];
     if (this._layout[key] !== undefined) return this._layout[key];
     const cfg = window.QURAN_CONFIG.riwayat[riwaya];
     let doc = null;
