@@ -13,6 +13,7 @@ const dataUri = (f) => 'data:image/png;base64,' + fs.readFileSync(path.join(ROOT
 
 const bakedUri = dataUri('assets/img/base.png');
 const overlayUri = dataUri('assets/img/base-notags.png');
+const tagUri = dataUri('assets/ui/ayah-tag.png');
 
 /* ---- slim data: only what page 596 needs ---- */
 const ayat = readJson('assets/data/ayat.json');
@@ -58,6 +59,7 @@ window.__INLINE_ART = {
   baked:   { img: ${JSON.stringify(bakedUri)}, overlay: false },
   overlay: { img: ${JSON.stringify(overlayUri)}, overlay: true }
 };
+window.__INLINE_TAG = ${JSON.stringify(tagUri)};
 </script>
 <script>
 ${js}

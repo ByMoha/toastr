@@ -51,9 +51,10 @@
       medLayer.innerHTML = "";
       doc.medallions.forEach(function (m) {
         var el = Medallion.node(m.a, 44);
+        var h = el.style.height ? parseFloat(el.style.height) : 44;
         el.style.position = "absolute";
         el.style.left = (m.x - 22) + "px";
-        el.style.top = (m.y - 22) + "px";
+        el.style.top = (m.y - h / 2) + "px";
         medLayer.appendChild(el);
       });
     });

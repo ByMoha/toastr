@@ -12,6 +12,10 @@
   --sheet-bg: #e7e7e8;
   --sheet-grab: #b7b8ba;
   --gold: #b07a3c;
+  /* aya-tag theming: the artwork ships in the sepia theme; other themes set a
+     CSS filter (e.g. hue-rotate/saturate) and a matching number colour */
+  --tag-tint: none;
+  --tag-num: #8a5a24;
 }
 
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }

@@ -15,6 +15,18 @@ window.QURAN_CONFIG = {
   // number of pages in the standard Madani mushaf
   pages: 604,
 
+  /* Shared chrome assets (theme-tintable via CSS vars --tag-tint / --tag-num).
+   * The aya-tag is the official "open" medallion — the app renders the ayah
+   * number into its open centre (see medallion.js `art`). Banners/header are
+   * composed over medallion-less page art when the SVG page-sets land. */
+  ui: {
+    ayahTag: "assets/ui/ayah-tag.png",
+    surahBanner: "assets/ui/surah-banner.png",          // matches the reference design
+    surahBannerAlt: "assets/ui/surah-banner-alt.png",
+    surahBannerAngular: "assets/ui/surah-banner-angular.png",
+    juzHeader: "assets/ui/juz-header.png"
+  },
+
   riwayat: {
     hafs: {
       id: "hafs",

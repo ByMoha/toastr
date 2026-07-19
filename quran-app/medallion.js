@@ -2,11 +2,47 @@
  * The mushaf page art ships WITHOUT aya-tags; this module draws them as an
  * overlay from per-page position data (assets/data/layout/<riwaya>/<page>.json).
  *
- * The medallion is an app-drawn SVG gold rosette by default. To use an exact
- * asset instead, set Medallion.asset = (number,size) => <SVGElement|HTMLElement>.
+ * Default: the official aya-tag artwork (assets/ui/ayah-tag.png — the "open"
+ * medallion) with the ayah number rendered into its open centre. The artwork
+ * ships in the sepia theme; re-theming applies a CSS filter via --tag-tint.
+ * A custom generator can still be plugged in via Medallion.asset.
  */
 window.Medallion = {
   asset: null, // optional override: (number, size) => element
+
+  // official artwork geometry (kept in sync with assets/ui/ayah-tag.png)
+  art: {
+    src: "assets/ui/ayah-tag.png",
+    w: 40, h: 52,               // native px
+    cx: 0.5, cy: 0.515,         // open-centre position (fraction of w/h)
+    numScale: 0.42              // number font-size as a fraction of width
+  },
+
+  // Build the artwork-based tag: image + Arabic-Indic number in the open centre.
+  artNode(number, size) {
+    size = size || 46;                       // size = rendered WIDTH
+    const a = this.art;
+    const h = Math.round(size * a.h / a.w);
+    const wrap = document.createElement("span");
+    wrap.className = "ayah-tag";
+    wrap.style.cssText =
+      "position:relative;display:inline-block;width:" + size + "px;height:" + h + "px;" +
+      "filter:var(--tag-tint,none);";
+    const img = document.createElement("img");
+    img.src = a.src; img.alt = "";
+    img.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;";
+    img.draggable = false;
+    const num = document.createElement("span");
+    num.textContent = window.toArabicDigits(number);
+    num.style.cssText =
+      "position:absolute;left:" + (a.cx * 100) + "%;top:" + (a.cy * 100) + "%;" +
+      "transform:translate(-50%,-50%);" +
+      "font-family:'Amiri Quran','Scheherazade New','Noto Naskh Arabic',serif;" +
+      "font-size:" + Math.round(size * a.numScale) + "px;line-height:1;" +
+      "color:var(--tag-num,#8a5a24);font-weight:600;";
+    wrap.appendChild(img); wrap.appendChild(num);
+    return wrap;
+  },
 
   // one medallion as an inline-SVG string (gold rosette + Arabic-Indic number)
   svg(number, size) {
@@ -37,12 +73,21 @@ window.Medallion = {
     </svg>`;
   },
 
-  node(number, size) {
+  node(number, size, style) {
     if (this.asset) return this.asset(number, size);
-    const wrap = document.createElement("span");
-    wrap.className = "medallion";
-    wrap.innerHTML = this.svg(number, size);
-    return wrap.firstElementChild;
+    if (style === "drawn") {          // legacy placeholder rosette
+      const wrap = document.createElement("span");
+      wrap.className = "medallion";
+      wrap.innerHTML = this.svg(number, size);
+      return wrap.firstElementChild;
+    }
+    return this.artNode(number, size);
+  },
+
+  /* Embed mode: a single-file build supplies the artwork inline. */
+  init() {
+    if (window.__INLINE_TAG) this.art.src = window.__INLINE_TAG;
+    return this;
   },
 
   /* Build an absolutely-positioned overlay for a page.
@@ -61,12 +106,15 @@ window.Medallion = {
     box.style.pointerEvents = "none";
     (medallions || []).forEach((m) => {
       const el = this.node(m.a, size);
+      const h = el.style.height ? parseFloat(el.style.height) : size;
       el.style.position = "absolute";
       el.style.left = (m.x - size / 2) + "px";
-      el.style.top = (m.y - size / 2) + "px";
+      el.style.top = (m.y - h / 2) + "px";
       el.dataset.s = m.s; el.dataset.a = m.a;
       box.appendChild(el);
     });
     return box;
   }
 };
+
+window.Medallion.init();
