@@ -361,6 +361,11 @@ body[data-deco="dark"] .stage.pagemode .status-strip{
 }
 /* highlight: screen-blend the inverted glyphs (the dual of multiply) */
 body[data-deco="dark"] .hl-clip{ filter:invert(1) brightness(.92); mix-blend-mode:screen; }
+/* dark mode: invert decoration artwork (hue-rotated back to warm) so its
+   light centres turn dark and the page's inverted white glyphs stay readable */
+body[data-deco="dark"] .ayah-tag img{ filter:invert(1) hue-rotate(180deg) brightness(1.12); }
+body[data-deco="dark"] .banner{ filter:invert(1) hue-rotate(180deg) brightness(1.08); }
+body[data-deco="dark"] .juz-frame::before{ filter:invert(1) hue-rotate(180deg) brightness(1.08); }
 body[data-deco="dark"] .hl-rose{ background:#7d4551; }
 /* sheet + settings surfaces */
 body[data-deco="dark"] .pill{ background:#343436; color:#e8e8ea; }
