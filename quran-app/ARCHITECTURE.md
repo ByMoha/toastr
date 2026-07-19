@@ -74,7 +74,26 @@ any calligraphy. See `dev/medallion-demo.html` for a live proof over medallion-l
 set `Medallion.asset = (number, size) => <element>` (or per-riwāya). The number is drawn
 in Arabic-Indic digits.
 
-## 4. What the engine still needs from you
+## 4. Ingesting a delivered SVG page-set (`dev/ingest.js`)
+
+When a riwāya's page-set arrives (e.g. the Warsh zip), install it in four steps:
+
+```bash
+node dev/ingest.js unzip   warsh.zip work/warsh-raw          # 1. extract
+node dev/ingest.js inspect work/warsh-raw                    # 2. see each page's layers
+                                                             #    (ids, labels, bboxes)
+node dev/ingest.js strip   page001.svg /tmp/t.svg \
+                           --remove "#border,#decoration"    # 3. dry-run one page
+node dev/ingest.js batch   work/warsh-raw assets/pages/warsh \
+                           --remove "#border,#decoration" --riwaya warsh   # 4. install all
+```
+
+`--remove` takes CSS selectors — the `inspect` report tells you exactly which
+ids/labels are the border/decoration layers. `batch` numbers pages from filename
+digits and prints the distinct viewBoxes to set in `config.js`. Parsing runs in a
+real SVG DOM (Chromium), not regex. `warsh` is already registered in `config.js`.
+
+## 5. What the engine still needs from you
 
 1. **Page-art SVGs** — one per page, per riwāya, medallion-less. Naming + `viewBox`?
 2. **Aya-tag positions** — a `layout/<riwaya>/<page>.json` per page **or** anchor

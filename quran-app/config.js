@@ -50,8 +50,24 @@ window.QURAN_CONFIG = {
       medallion: { style: "gold-rosette", size: 46 },
       layout: (p) => `assets/data/layout/qaloon/${p}.json`,
       sample: {}
+    },
+
+    warsh: {
+      id: "warsh",
+      label: "ورش عن نافع",
+      dir: "rtl",
+      page: {
+        type: "svg",
+        src: (p) => `assets/pages/warsh/${String(p).padStart(3, "0")}.svg`,
+        // Warsh mushaf pagination differs from the 604-page Hafs Madani mushaf;
+        // pageCount + viewBox are confirmed by dev/ingest.js when the set is installed.
+        viewBox: { w: 804, h: 1748 }
+      },
+      medallion: { style: "gold-rosette", size: 46 },
+      layout: (p) => `assets/data/layout/warsh/${p}.json`,
+      sample: {}
     }
 
-    // warsh, al-douri, … register the same way
+    // al-douri, shu'ba, … register the same way
   }
 };
