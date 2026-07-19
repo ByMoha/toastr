@@ -26,14 +26,15 @@ window.Medallion = {
     const wrap = document.createElement("span");
     wrap.className = "ayah-tag";
     wrap.style.cssText =
-      "position:relative;display:inline-block;width:" + size + "px;height:" + h + "px;" +
-      "filter:var(--tag-tint,none);";
+      "position:relative;display:inline-block;width:" + size + "px;height:" + h + "px;";
     const img = document.createElement("img");
     img.src = a.src; img.alt = "";
-    img.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;";
+    // tint on the artwork only, never the number text
+    img.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;filter:var(--tag-tint,none);";
     img.draggable = false;
     const num = document.createElement("span");
-    num.textContent = window.toArabicDigits(number);
+    // empty number = underlay mode (the page art draws its own bare digit on top)
+    num.textContent = number === "" || number == null ? "" : window.toArabicDigits(number);
     num.style.cssText =
       "position:absolute;left:" + (a.cx * 100) + "%;top:" + (a.cy * 100) + "%;" +
       "transform:translate(-50%,-50%);" +

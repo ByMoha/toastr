@@ -63,7 +63,63 @@ body{
 
 /* app-drawn aya-tag overlay — only visible for medallion-less page art */
 .med-layer{ position:absolute; inset:0; z-index:3; pointer-events:none; display:none; }
-.stage.art-overlay .med-layer{ display:block; }
+.stage.art-overlay .med-layer,
+.stage.pagemode .med-layer{ display:block; }
+
+/* ---------- Page mode: real riwāya SVG page in the page slot ---------- */
+:root{ --art-capture: url("assets/img/base.png"); }
+.page-decor, .page-slot, .status-strip{ display:none; }
+.stage.pagemode{ background:var(--cream); }
+.stage.pagemode .page-decor{
+  display:block; position:absolute; inset:0; z-index:2; pointer-events:none;
+}
+.juz-frame{
+  /* natural asset proportions (804x52) — decorations are never stretched */
+  position:absolute; left:0; top:112px; width:804px; height:52px;
+  direction:rtl;
+  font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic","Geeza Pro",serif;
+  font-size:23px; color:#3f3327;
+}
+/* artwork on a pseudo-element so the decoration tint never touches the text */
+.juz-frame::before{
+  content:""; position:absolute; inset:0; z-index:0;
+  background:url("assets/ui/juz-header.png") center / 100% 100% no-repeat;
+  filter:var(--tag-tint);
+}
+.juz-frame span{ z-index:1; }
+
+/* ornate surah banners drawn in the extracted band zones */
+.banner{
+  position:absolute; pointer-events:none;
+  background:url("assets/ui/surah-banner.png") center / 100% 100% no-repeat;
+  filter:var(--tag-tint);
+}
+
+/* app-drawn page number (the SVG's own is stripped) */
+.page-num{
+  position:absolute; left:0; width:804px; text-align:center;
+  font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
+  font-size:34px; color:var(--tag-num);
+}
+.juz-frame span{
+  position:absolute; top:50%; transform:translateY(-54%);
+  white-space:nowrap;
+}
+/* cartouche interior ≈ x 178..626, three packed zones as in the design:
+   juz (right) · first surah (middle) · second surah (left) */
+.hdr-juz{ right:184px; }
+.hdr-s1{ left:352px; transform:translate(-50%,-54%); }
+.hdr-s2{ left:184px; }
+.juz-frame.one-surah .hdr-s1{ left:300px; }
+.stage.pagemode .page-slot{
+  display:block; position:absolute; z-index:4; pointer-events:none;
+  background:var(--art) 0 0 / 100% 100% no-repeat;
+}
+.stage.pagemode .status-strip{
+  display:block; position:absolute; z-index:6; pointer-events:none;
+  left:0; top:0; width:804px; height:100px;
+  background:var(--art-capture) 0 0 / 804px 1748px no-repeat;
+}
 
 /* ---------- Tap targets ---------- */
 .hits{ position:absolute; inset:0; z-index:5; }
@@ -231,6 +287,83 @@ body{
 .fabwrap[data-open="true"] .fab-item:nth-child(2){ transition-delay:.14s; }
 .fabwrap[data-open="true"] .fab-item:nth-child(1){ transition-delay:.18s; }
 .fab-item:active{ transform:scale(.92); }
+
+/* ---------- Decoration color themes (tint the sepia artwork) ---------- */
+body[data-deco="green"] .stage{ --tag-tint:hue-rotate(95deg) saturate(.8);  --tag-num:#3f7a4c; }
+body[data-deco="blue"]  .stage{ --tag-tint:hue-rotate(185deg) saturate(.7); --tag-num:#3b5f8a; }
+body[data-deco="mauve"] .stage{ --tag-tint:hue-rotate(280deg) saturate(.7); --tag-num:#8a4a6b; }
+body[data-deco="slate"] .stage{ --tag-tint:saturate(0) brightness(.97);     --tag-num:#5a5a5c; }
+
+/* ---------- Settings page ---------- */
+.settings-dim{
+  position:absolute; inset:0; z-index:39;
+  background:rgba(0,0,0,.45);
+  opacity:0; visibility:hidden;
+  transition:opacity .25s ease, visibility 0s linear .25s;
+}
+.settings-dim.show{ opacity:1; visibility:visible; transition:opacity .25s ease; }
+.settings{
+  position:absolute; left:0; right:0; bottom:0; z-index:40;
+  background:var(--sheet-bg);
+  border-radius:30px 30px 0 0;
+  padding:12px 26px calc(30px + env(safe-area-inset-bottom));
+  transform:translateY(103%);
+  transition:transform .34s cubic-bezier(.22,.61,.36,1);
+  box-shadow:0 -12px 40px rgba(0,0,0,.2);
+}
+.settings.show{ transform:translateY(0); }
+.settings-title{
+  margin:4px 0 18px; text-align:center;
+  font:600 34px/1.3 -apple-system,"Segoe UI",sans-serif; color:#1c1c1e;
+}
+.settings-section{ margin-bottom:22px; }
+.settings-label{
+  font:600 26px/1.4 -apple-system,"Segoe UI",sans-serif;
+  color:#6c6c70; margin:0 6px 10px;
+}
+.settings-card{
+  background:#fff; border-radius:26px; overflow:hidden;
+}
+.riwaya-row{
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; padding:24px 26px;
+  border:none; background:none; cursor:pointer;
+  border-bottom:1.5px solid #f900; border-bottom-color:#efeff0;
+  font-family:inherit; text-align:right;
+}
+.riwaya-row:last-child{ border-bottom:none; }
+.riwaya-row:active{ background:#f5f5f6; }
+.riwaya-row[disabled]{ cursor:default; }
+.riwaya-row[disabled] .rw-name{ color:#b5b5b8; }
+.rw-name{
+  font:28px/1.4 "Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
+  color:#1c1c1e;
+}
+.rw-soon{
+  font:22px/1 -apple-system,"Segoe UI",sans-serif; color:#b5b5b8;
+  background:#f2f2f3; border-radius:999px; padding:8px 16px;
+}
+.rw-check{
+  width:34px; height:34px; border-radius:50%;
+  border:2.5px solid #d2d2d6; position:relative;
+}
+.riwaya-row.active .rw-check{ border-color:var(--gold); background:var(--gold); }
+.riwaya-row.active .rw-check::after{
+  content:""; position:absolute; left:11px; top:5px;
+  width:8px; height:16px; border:solid #fff; border-width:0 3.5px 3.5px 0;
+  transform:rotate(45deg);
+}
+.settings-card.swatches{
+  display:flex; gap:22px; padding:24px 26px; justify-content:flex-start;
+}
+.swatch{
+  width:74px; height:74px; border-radius:50%;
+  border:3px solid #e3e3e5; cursor:pointer;
+  background:radial-gradient(circle at 35% 32%, #fff6 0 18%, transparent 20%), var(--sw);
+  transition:transform .15s ease, border-color .15s ease;
+}
+.swatch:active{ transform:scale(.92); }
+.swatch.active{ border-color:#1c1c1e; box-shadow:0 0 0 3px #fff inset; }
 
 /* subtle scrim behind the expanded menu so it reads over the page */
 .menu-scrim{

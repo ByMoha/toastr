@@ -44,6 +44,19 @@ window.Data = {
     return null;
   },
 
+  // load a layout doc by explicit URL (page-SVG mode; embed-aware, cached)
+  async layoutUrl(url) {
+    if (window.__INLINE_DATA && window.__INLINE_DATA.layoutByUrl && window.__INLINE_DATA.layoutByUrl[url])
+      return window.__INLINE_DATA.layoutByUrl[url];
+    const key = "url:" + url;
+    if (this._layout[key] !== undefined) return this._layout[key];
+    let doc = null;
+    try { doc = await fetch(url).then((r) => (r.ok ? r.json() : null)); }
+    catch (_) { doc = null; }
+    this._layout[key] = doc;
+    return doc;
+  },
+
   // per-page aya-tag / line layout for a riwāya (cached)
   async layout(riwaya, page) {
     const key = riwaya + ":" + page;

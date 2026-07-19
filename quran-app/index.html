@@ -14,8 +14,23 @@
 
       <!-- Base reading page (screen 1) is the stage background image (var --art) -->
 
+      <!-- Page-mode chrome: ornate juz header, surah banners, page number -->
+      <div class="page-decor" aria-hidden="true">
+        <div class="juz-frame">
+          <span class="hdr-juz" id="hdrJuz"></span>
+          <span class="hdr-s1" id="hdrS1"></span>
+          <span class="hdr-s2" id="hdrS2"></span>
+        </div>
+        <div id="bannerLayer"></div>
+        <div class="page-num" id="pageNum"></div>
+      </div>
+
       <!-- App-drawn aya-tag overlay (shown when the page art is medallion-less) -->
       <div class="med-layer" id="medLayer" aria-hidden="true"></div>
+
+      <!-- Real riwāya page SVG, rendered into the page slot (page mode only) -->
+      <div class="page-slot" id="pageSlot" aria-hidden="true"></div>
+      <div class="status-strip" aria-hidden="true"></div>
 
       <!-- Transparent per-ayah tap targets -->
       <div class="hits" id="hits"></div>
@@ -75,6 +90,46 @@
             </svg>
           </span>
         </button>
+      </div>
+
+      <!-- Settings (opened from the expanded menu's gear) -->
+      <div class="settings-dim" id="settingsDim" aria-hidden="true"></div>
+      <div class="settings" id="settings" aria-hidden="true" dir="rtl">
+        <div class="sheet-grabber"></div>
+        <h2 class="settings-title">الإعدادات</h2>
+
+        <div class="settings-section">
+          <div class="settings-label">الرواية</div>
+          <div class="settings-card" id="riwayaList">
+            <button class="riwaya-row" data-art="hafs-svg">
+              <span class="rw-name">حفص عن عاصم</span>
+              <span class="rw-check" aria-hidden="true"></span>
+            </button>
+            <button class="riwaya-row" data-art="warsh-svg">
+              <span class="rw-name">ورش عن نافع</span>
+              <span class="rw-check" aria-hidden="true"></span>
+            </button>
+            <button class="riwaya-row" data-art="" disabled>
+              <span class="rw-name">قالون عن نافع</span>
+              <span class="rw-soon">قريباً</span>
+            </button>
+            <button class="riwaya-row" data-art="" disabled>
+              <span class="rw-name">الدوري عن أبي عمرو</span>
+              <span class="rw-soon">قريباً</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">لون الزخرفة</div>
+          <div class="settings-card swatches" id="swatchList">
+            <button class="swatch" data-deco="sepia" style="--sw:#b07a3c" aria-label="ذهبي"></button>
+            <button class="swatch" data-deco="green" style="--sw:#5c9a6b" aria-label="أخضر"></button>
+            <button class="swatch" data-deco="blue"  style="--sw:#5b7fa6" aria-label="أزرق"></button>
+            <button class="swatch" data-deco="mauve" style="--sw:#a66b95" aria-label="بنفسجي"></button>
+            <button class="swatch" data-deco="slate" style="--sw:#8a8a8a" aria-label="رمادي"></button>
+          </div>
+        </div>
       </div>
 
     </div>
