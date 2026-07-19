@@ -9,10 +9,11 @@
   "use strict";
 
   var STAGE_W = 804, STAGE_H = 1748;
-  // The text region: a page SVG's textBox is stretched onto this, so the
-  // calligraphy fills the frame edge to edge (header/page number/banners are
-  // app-drawn chrome around it and keep their natural proportions).
-  var TEXT_REGION = { x: 8, y: 172, w: 788, h: 1478 };
+  // Page-text placement: UNIFORM scale (the calligraphy's aspect is never
+  // distorted), sized to the width minus the side padding, centred in the
+  // vertical band between the header and the page number.
+  var PAGE_PAD = 18;                        // side padding, both sides
+  var TEXT_TOP = 176, TEXT_BOTTOM = 1646;   // vertical band bounds
 
   var viewport = document.getElementById("viewport");
   var stage = document.getElementById("stage");
@@ -48,17 +49,17 @@
   var G = { offX: 0, offY: 0, bgW: STAGE_W, bgH: STAGE_H };
   var TAG_STAGE = 46; // aya-tag width in stage px
 
-  // svg→stage mapping for the current page layout (textBox → TEXT_REGION)
+  // svg→stage mapping for the current page layout — one uniform scale factor
   var M = null;
   function makeMap(layout) {
     var t = layout.textBox;
-    var sx = TEXT_REGION.w / t.w, sy = TEXT_REGION.h / t.h;
-    return {
-      sx: sx, sy: sy,
-      ox: TEXT_REGION.x - t.x * sx,
-      oy: TEXT_REGION.y - t.y * sy,
-      vbW: layout.viewBox.w, vbH: layout.viewBox.h
-    };
+    var avail = TEXT_BOTTOM - TEXT_TOP;
+    // fit by width (18px sides); if a page is taller than the band, shrink
+    // uniformly to fit — padding grows, aspect never changes
+    var s = Math.min((STAGE_W - 2 * PAGE_PAD) / t.w, avail / t.h);
+    var ox = (STAGE_W - t.w * s) / 2 - t.x * s;
+    var oy = TEXT_TOP + (avail - t.h * s) / 2 - t.y * s;
+    return { sx: s, sy: s, ox: ox, oy: oy, vbW: layout.viewBox.w, vbH: layout.viewBox.h };
   }
   function mx(x) { return M.ox + x * M.sx; }
   function my(y) { return M.oy + y * M.sy; }
