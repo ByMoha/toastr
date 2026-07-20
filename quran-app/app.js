@@ -86,7 +86,9 @@
     var avail = TEXT_BOTTOM - TEXT_TOP;
     // fit by width (18px sides); if a page is taller than the band, shrink
     // uniformly to fit — padding grows, aspect never changes
-    var s = Math.min((STAGE_W - 2 * PAGE_PAD) / t.w, avail / t.h);
+    // cap the scale so small ornate pages (e.g. the opening spread) stay
+    // elegantly centred instead of blowing up to full width
+    var s = Math.min((STAGE_W - 2 * PAGE_PAD) / t.w, avail / t.h, 3.3);
     var ox = (STAGE_W - t.w * s) / 2 - t.x * s;
     var oy = TEXT_TOP + (avail - t.h * s) / 2 - t.y * s;
     return { sx: s, sy: s, ox: ox, oy: oy, vbW: layout.viewBox.w, vbH: layout.viewBox.h };

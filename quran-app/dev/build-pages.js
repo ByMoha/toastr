@@ -19,6 +19,13 @@ const riwaya = opt('riwaya', 'hafs');
 const src = path.resolve(opt('src', 'work/drive/hafs-pages'));
 const pagemapPath = opt('pagemap', 'assets/data/pagemap.json');
 const only = opt('only', null);
+// hand-annotated digit positions: "17:x,y|x,y;86:x,y|..." (reading order not required)
+const FORCED = {};
+const forceArg = opt('force', null);
+if (forceArg) for (const part of forceArg.split(';')) {
+  const [pg, list] = part.split(':');
+  FORCED[+pg] = list.split('|').map(t => { const [x, y] = t.split(','); return { x: +x, y: +y }; });
+}
 
 const ROOT = path.join(__dirname, '..');
 const outPages = path.join(ROOT, 'assets/pages', riwaya);
@@ -59,16 +66,29 @@ const PROCESS = ({ svgText, ayatCount }) => {
   }
   live.setAttribute('preserveAspectRatio', 'none');
 
-  // measure digits + text block on the stripped result
-  const digits = []; let text = null;
+  // measure digit candidates + text block on the stripped result.
+  // Two digit styles exist: bare digits (small) and full aya-marks with the
+  // ring glyph (large, used for 3-digit numbers on some pages). Waqf marks can
+  // appear as separate small paths — disambiguate by expected ayah count.
+  const small = [], large = [];
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;   // text block = union of paths
   for (const el of live.querySelectorAll('path')) {
     const bb = el.getBBox();
-    if (bb.height > 2.4 && bb.height < 7 && bb.width < 16 &&
-        bb.y > vb.height * 0.05 && bb.y < vb.height * 0.95)
-      digits.push({ x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 });
-    if (!text || bb.width * bb.height > text.w * text.h)
-      text = { x: bb.x, y: bb.y, w: bb.width, h: bb.height };
+    const c = { x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 };
+    if (bb.y > vb.height * 0.05 && bb.y < vb.height * 0.95) {
+      if (bb.height > 2.4 && bb.height < 7 && bb.width < 16) small.push(c);
+      else if (bb.height >= 8 && bb.height < 15 && bb.width >= 9 && bb.width < 21) large.push(c);
+    }
+    x0 = Math.min(x0, bb.x); y0 = Math.min(y0, bb.y);
+    x1 = Math.max(x1, bb.x + bb.width); y1 = Math.max(y1, bb.y + bb.height);
   }
+  const text = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  let digits = small;
+  if (ayatCount != null) {
+    if (large.length === ayatCount) digits = large;
+    else if (small.length === ayatCount) digits = small;
+    else if (small.length + large.length === ayatCount) digits = small.concat(large);
+  } else if (!small.length) digits = large;
   return {
     out: new XMLSerializer().serializeToString(live),
     vb: { w: vb.width, h: vb.height },
@@ -166,6 +186,7 @@ function layoutFrom(res, pageNum, ayat) {
       const svgText = fs.readFileSync(path.join(src, f), 'utf8');
       const res = await page.evaluate(PROCESS, { svgText, ayatCount: ayat ? ayat.length : null });
       if (res.error) throw new Error(res.error);
+      if (FORCED[n]) res.digits = FORCED[n];
       const name = String(n).padStart(3, '0') + '.svg';
       fs.writeFileSync(path.join(outPages, name), res.out);
       const layout = layoutFrom(res, n, ayat);
