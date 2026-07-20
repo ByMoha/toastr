@@ -6,7 +6,7 @@
  *   pagemap.json  "page"       -> [[surah,ayah], ...]    (604)
  */
 window.Data = {
-  ayat: null, gharib: null, surahs: null, pagemap: null, uthmani: null,
+  ayat: null, gharib: null, surahs: null, pagemap: null, uthmani: null, juzpage: null,
   _layout: {},          // cache: `${riwaya}:${page}` -> layout doc
   ready: false,
 
@@ -18,23 +18,41 @@ window.Data = {
       this.ayat = d.ayat || {}; this.gharib = d.gharib || {};
       this.surahs = d.surahs || []; this.pagemap = d.pagemap || {};
       this.uthmani = d.uthmani || {};
+      this.juzpage = d.juzpage || {};
       this.ready = true;
       return this;
     }
     const base = "assets/data/";
     const get = (f) => fetch(base + f).then((r) => r.json());
-    const [ayat, gharib, surahs, pagemap, uthmani] = await Promise.all([
+    const [ayat, gharib, surahs, pagemap, uthmani, juzpage] = await Promise.all([
       get("ayat.json"), get("gharib.json"), get("surahs.json"), get("pagemap.json"),
-      get("uthmani.json").catch(() => ({}))
+      get("uthmani.json").catch(() => ({})), get("juzpage.json").catch(() => ({}))
     ]);
     this.ayat = ayat; this.gharib = gharib; this.surahs = surahs; this.pagemap = pagemap;
-    this.uthmani = uthmani;
+    this.uthmani = uthmani; this.juzpage = juzpage;
     this.ready = true;
     return this;
   },
 
   // Uthmani ayah text encoded for the KFGQPC Hafs Smart font
   uthmaniOf(s, a) { return (this.uthmani && this.uthmani[s + ":" + a]) || ""; },
+
+  // juz number of a (Hafs-pagination) page
+  juzOf(page) { return (this.juzpage && this.juzpage[String(page)]) || null; },
+
+  // first page of each surah (computed once from the pagemap)
+  surahStartPage(s) {
+    if (!this._surahPage) {
+      this._surahPage = {};
+      const pages = Object.keys(this.pagemap || {}).map(Number).sort((a, b) => a - b);
+      for (const p of pages) {
+        for (const [ss, aa] of this.pagemap[String(p)]) {
+          if (aa === 1 && this._surahPage[ss] === undefined) this._surahPage[ss] = p;
+        }
+      }
+    }
+    return this._surahPage[s] || null;
+  },
 
   ayahText(s, a) { return (this.ayat && this.ayat[s + ":" + a]) || ""; },
   gharibOf(s, a) { return (this.gharib && this.gharib[s + ":" + a]) || ""; },

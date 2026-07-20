@@ -37,8 +37,8 @@
   var ART = window.__INLINE_ART || {
     "baked":     { img: "assets/img/base.png",        kind: "capture", overlay: false },
     "overlay":   { img: "assets/img/base-notags.png", kind: "capture", overlay: true },
-    "hafs-svg":  { img: "assets/pages/hafs/596.svg",  kind: "page", riwaya: "hafs",  page: 596,
-                   layoutUrl: "assets/data/layout/hafs/596.svg.json", juz: "الجزء الثلاثون" },
+    // full page-set: img/layout resolved per page number
+    "hafs-svg":  { kind: "page", riwaya: "hafs", template: true, pages: 604, page: 596 },
     "warsh-svg": { img: "assets/pages/warsh/300.svg", kind: "page", riwaya: "warsh", page: 300,
                    layoutUrl: "assets/data/layout/warsh/300.svg.json", juz: "الجزء الخامس عشر" },
     "qaloon-svg": { img: "assets/pages/qaloon/300.svg", kind: "page", riwaya: "qaloon", page: 300,
@@ -48,6 +48,32 @@
   };
   var CYCLE = Object.keys(ART);
   var artMode = "baked";
+
+  var JUZ_NAMES = ["الأول","الثاني","الثالث","الرابع","الخامس","السادس","السابع","الثامن","التاسع","العاشر",
+    "الحادي عشر","الثاني عشر","الثالث عشر","الرابع عشر","الخامس عشر","السادس عشر","السابع عشر","الثامن عشر",
+    "التاسع عشر","العشرون","الحادي والعشرون","الثاني والعشرون","الثالث والعشرون","الرابع والعشرون",
+    "الخامس والعشرون","السادس والعشرون","السابع والعشرون","الثامن والعشرون","التاسع والعشرون","الثلاثون"];
+
+  // resolve a page-mode entry's art + layout for a given page number
+  function artImg(a, p) {
+    if (a.imgByPage) return a.imgByPage[p] || null;
+    if (a.template) return "assets/pages/" + a.riwaya + "/" + String(p).padStart(3, "0") + ".svg";
+    return a.img;
+  }
+  function artLayoutUrl(a, p) {
+    if (a.template || a.imgByPage) return "assets/data/layout/" + a.riwaya + "/" + p + ".svg.json";
+    return a.layoutUrl;
+  }
+  function artHasPage(a, p) {
+    if (!a.template && !a.imgByPage) return p === a.page;
+    if (a.imgByPage) return !!a.imgByPage[p];
+    return p >= 1 && p <= (a.pages || 604);
+  }
+  function artJuzLabel(a, p) {
+    if (a.juz && !a.template) return a.juz;
+    var j = window.Data && Data.juzOf(p);
+    return j ? "الجزء " + JUZ_NAMES[j - 1] : "";
+  }
 
   // geometry of the current art inside the stage (used by highlight + sheet clips)
   var G = { offX: 0, offY: 0, bgW: STAGE_W, bgH: STAGE_H };
@@ -192,15 +218,23 @@
   }
 
   /* -------- Art switching -------- */
-  function setArt(mode) {
+  var curPage = null;
+  function setArt(mode, pageNum) {
     var a = ART[mode]; if (!a) return Promise.resolve();
     artMode = mode;
     if (a.kind === "page") {
-      return Data.layoutUrl(a.layoutUrl).then(function (layout) {
-        if (!layout || artMode !== mode) return;
+      var p = pageNum || a.page || 1;
+      if (!artHasPage(a, p)) return Promise.resolve();
+      var prevPage = curPage;
+      curPage = p;
+      var imgUrl = artImg(a, p);
+      return Data.layoutUrl(artLayoutUrl(a, p)).then(function (layout) {
+        if (!layout) { if (curPage === p) curPage = prevPage; return; }
+        if (artMode !== mode || curPage !== p) return;
+        a.page = p; // remember per-mode position
         stage.classList.add("pagemode");
         stage.classList.remove("art-overlay");
-        stage.style.setProperty("--art", 'url("' + a.img + '")');
+        stage.style.setProperty("--art", 'url("' + imgUrl + '")');
         M = makeMap(layout);
         // the page-slot is the full scaled SVG, positioned so its text block
         // fills the design's text region
@@ -212,8 +246,8 @@
         G = { offX: M.ox, offY: M.oy, bgW: M.vbW * M.sx, bgH: M.vbH * M.sy };
         rebuildHits(buildPageSel(layout));
         buildPageMedallions(layout);
-        buildPageChrome(layout, a);
-        // live header text: juz (registry) + the surahs of this page. Like the
+        buildPageChrome(layout, { page: p });
+        // live header text: juz (from data) + the surahs of this page. Like the
         // design, prefer surahs that BEGIN on the page (their banner is here);
         // if none begins here, show the continuing surah.
         var starting = [], all = [];
@@ -222,10 +256,14 @@
           if (all.indexOf(m.s) < 0) all.push(m.s);
           if (m.a === 1 && starting.indexOf(m.s) < 0) starting.push(m.s);
         });
+        // pages may start mid-surah with no digit of the continuing surah row
+        if (!all.length && window.Data) {
+          Data.pageAyat(p).forEach(function (sa) { if (all.indexOf(sa[0]) < 0) all.push(sa[0]); });
+        }
         var shown = starting.length ? starting : all.slice(0, 1);
         var frame = document.querySelector(".juz-frame");
         frame.classList.toggle("one-surah", shown.length < 2);
-        document.getElementById("hdrJuz").textContent = a.juz || "";
+        document.getElementById("hdrJuz").textContent = artJuzLabel(a, p);
         document.getElementById("hdrS1").textContent = shown[0] != null ? "سُورَةُ " + Data.surahName(shown[0]) : "";
         document.getElementById("hdrS2").textContent = shown[1] != null ? "سُورَةُ " + Data.surahName(shown[1]) : "";
       });
@@ -243,6 +281,54 @@
     var i = CYCLE.indexOf(artMode);
     setArt(CYCLE[(i + 1) % CYCLE.length]);
   }
+
+  /* -------- Page navigation (swipe) -------- */
+  function turnPage(delta) {
+    var a = ART[artMode];
+    if (!a || a.kind !== "page") return;
+    var p = (curPage || a.page) + delta;
+    // step over any missing pages (subset bundles)
+    var guard = 0;
+    while (guard++ < 700 && p >= 1 && p <= (a.pages || 604) && !artHasPage(a, p)) p += delta;
+    if (p < 1 || p > (a.pages || 604) || !artHasPage(a, p)) return;
+    setArt(artMode, p).then(function () { persist("page." + artMode, p); });
+  }
+  function goToPage(p) {
+    var a = ART[artMode];
+    var mode = (a && a.kind === "page" && (a.template || a.imgByPage)) ? artMode : "hafs-svg";
+    if (!artHasPage(ART[mode], p)) return;
+    setArt(mode, p).then(function () { persist("page." + mode, p); persist("art", mode); });
+  }
+
+  /* -------- Table of contents (الفهرس) -------- */
+  var toc = document.getElementById("toc");
+  var tocDim = document.getElementById("tocDim");
+  var tocBuilt = false;
+
+  function buildToc() {
+    if (tocBuilt || !window.Data || !Data.surahs) return;
+    var list = document.getElementById("tocList");
+    list.innerHTML = "";
+    Data.surahs.forEach(function (s) {
+      var pageN = Data.surahStartPage(s.n);
+      var row = document.createElement("button");
+      row.className = "toc-row";
+      row.innerHTML =
+        '<span class="toc-num">' + window.toArabicDigits(s.n) + '</span>' +
+        '<span class="toc-name">سُورَةُ ' + s.name + '</span>' +
+        '<span class="toc-page">' + (pageN ? window.toArabicDigits(pageN) : "") + '</span>';
+      row.addEventListener("click", function () {
+        if (pageN) goToPage(pageN);
+        closeToc();
+      });
+      list.appendChild(row);
+    });
+    tocBuilt = true;
+  }
+  function openToc() { buildToc(); tocDim.classList.add("show"); toc.classList.add("show"); toc.setAttribute("aria-hidden", "false"); }
+  function closeToc() { tocDim.classList.remove("show"); toc.classList.remove("show"); toc.setAttribute("aria-hidden", "true"); }
+  tocDim.addEventListener("pointerdown", function (e) { e.stopPropagation(); closeToc(); });
+  toc.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
 
   /* -------- Settings (riwāya + decoration color) -------- */
   var settings = document.getElementById("settings");
@@ -317,9 +403,10 @@
   var savedOrn = persisted("orn");
   if (savedOrn && savedOrn !== "1") document.body.dataset.orn = savedOrn;
   artMode = ART[persisted("art")] ? persisted("art") : (ART["hafs-svg"] ? "hafs-svg" : "baked");
+  var savedPage = parseInt(persisted("page." + artMode), 10) || null;
 
   // content data, then initial art state
-  if (window.Data) Data.load().then(function () { setArt(artMode); }).catch(function () {});
+  if (window.Data) Data.load().then(function () { setArt(artMode, savedPage); }).catch(function () {});
   else rebuildHits(buildCaptureSel());
 
   /* -------- Scale the stage to fit -------- */
@@ -506,10 +593,26 @@
   });
   stage.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
-  /* -------- Taps on the page background -------- */
+  /* -------- Background taps + horizontal swipes (page turning) -------- */
+  var gest = null;
   stage.addEventListener("pointerdown", function (e) {
-    if (e.target.closest(".hit") || e.target.closest(".sheet") ||
-        e.target.closest(".fabwrap") || e.target.closest(".menu-scrim")) return;
+    if (e.target.closest(".sheet") || e.target.closest(".fabwrap") ||
+        e.target.closest(".menu-scrim") || e.target.closest(".settings") ||
+        e.target.closest(".settings-dim")) { gest = null; return; }
+    gest = { x: e.clientX, y: e.clientY, onHit: !!e.target.closest(".hit") };
+  });
+  window.addEventListener("pointerup", function (e) {
+    if (!gest) return;
+    var dx = e.clientX - gest.x, dy = e.clientY - gest.y;
+    var g = gest; gest = null;
+    // swipe: horizontal, decisive — turn the page (RTL book: swipe right = forward)
+    if (Math.abs(dx) > 64 && Math.abs(dx) > 1.6 * Math.abs(dy)) {
+      if (state.sheetOpen || state.selected || state.menuOpen) return;
+      turnPage(dx > 0 ? 1 : -1);
+      return;
+    }
+    // small movement = tap; hits handle their own taps via endPress
+    if (Math.abs(dx) > 12 || Math.abs(dy) > 12 || g.onHit) return;
     if (state.sheetOpen || state.selected) { closeSelection(); return; }
     if (state.menuOpen) { closeMenu(); return; }
     toggleFab();
@@ -527,6 +630,7 @@
       e.stopPropagation();
       closeMenu();
       if (it.dataset.i === "4") { setFabVisible(false, true); openSettings(); }
+      if (it.dataset.i === "1") { setFabVisible(false, true); openToc(); }
     });
   });
 
@@ -544,6 +648,8 @@
     selectAyah: selectAyah, closeSelection: closeSelection, setFabVisible: setFabVisible,
     openMenu: openMenu, closeMenu: closeMenu, fit: fit,
     setArt: setArt, cycleRiwaya: cycleRiwaya,
+    turnPage: turnPage, goToPage: goToPage,
+    openToc: openToc, closeToc: closeToc,
     openSettings: openSettings, closeSettings: closeSettings,
     modes: function () { return CYCLE.slice(); },
     ids: function () { return Object.keys(SEL); }

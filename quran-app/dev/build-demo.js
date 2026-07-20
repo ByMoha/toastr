@@ -20,6 +20,19 @@ const svgUri = (f) => 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(R
 const fontUri = 'data:font/ttf;base64,' + fs.readFileSync(path.join(ROOT, 'assets/fonts/HafsSmart_08.ttf')).toString('base64');
 const orn2Banner = svgUri('assets/ui/orn2-banner.svg');
 const orn2Header = svgUri('assets/ui/orn2-header.svg');
+// demo bundles a navigable range of Hafs pages (juz-30 tail)
+const DEMO_PAGES = [];
+for (let p = 593; p <= 604; p++) DEMO_PAGES.push(p);
+const hafsImgByPage = {};
+const hafsLayouts = {};
+for (const p of DEMO_PAGES) {
+  const f = 'assets/pages/hafs/' + String(p).padStart(3, '0') + '.svg';
+  const lf = 'assets/data/layout/hafs/' + p + '.svg.json';
+  if (fs.existsSync(path.join(ROOT, f)) && fs.existsSync(path.join(ROOT, lf))) {
+    hafsImgByPage[p] = svgUri(f);
+    hafsLayouts['assets/data/layout/hafs/' + p + '.svg.json'] = readJson(lf);
+  }
+}
 const hafsSvg = svgUri('assets/pages/hafs/596.svg');
 const warshSvg = svgUri('assets/pages/warsh/300.svg');
 const qaloonSvg = svgUri('assets/pages/qaloon/300.svg');
@@ -37,8 +50,8 @@ const layoutWarshSvg = readJson('assets/data/layout/warsh/300.svg.json');
 const layoutQaloonSvg = readJson('assets/data/layout/qaloon/300.svg.json');
 const layoutDouriSvg = readJson('assets/data/layout/douri/300.svg.json');
 
-// page-596 keys + the Warsh sample's ayat (Kahf 53-60)
-const keys = pagemap['596'].map(([s, a]) => s + ':' + a)
+// all bundled Hafs pages' ayat + the Warsh sample's (Kahf 53-60)
+const keys = DEMO_PAGES.flatMap(p => (pagemap[String(p)] || []).map(([s, a]) => s + ':' + a))
   .concat(layoutWarshSvg.medallions.map(m => m.s + ':' + m.a));
 const pick = (obj) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k, obj[k]]));
 const inline = {
@@ -46,9 +59,11 @@ const inline = {
   gharib: pick(gharib),
   uthmani: pick(uthmani),
   surahs,
-  pagemap: { '596': pagemap['596'] },
+  pagemap: pagemap,
+  juzpage: readJson('assets/data/juzpage.json'),
   layout: { 'hafs:596': layout596 },
   layoutByUrl: {
+    ...hafsLayouts,
     'assets/data/layout/hafs/596.svg.json': layoutHafsSvg,
     'assets/data/layout/warsh/300.svg.json': layoutWarshSvg,
     'assets/data/layout/qaloon/300.svg.json': layoutQaloonSvg,
@@ -87,8 +102,8 @@ window.__INLINE_DATA = ${JSON.stringify(inline)};
 window.__INLINE_ART = {
   "baked":     { img: ${JSON.stringify(bakedUri)}, kind: "capture", overlay: false },
   "overlay":   { img: ${JSON.stringify(overlayUri)}, kind: "capture", overlay: true },
-  "hafs-svg":  { img: ${JSON.stringify(hafsSvg)}, kind: "page", riwaya: "hafs", page: 596,
-                 layoutUrl: "assets/data/layout/hafs/596.svg.json", juz: "الجزء الثلاثون" },
+  "hafs-svg":  { kind: "page", riwaya: "hafs", page: 596, pages: 604,
+                 imgByPage: ${JSON.stringify(hafsImgByPage)} },
   "warsh-svg": { img: ${JSON.stringify(warshSvg)}, kind: "page", riwaya: "warsh", page: 300,
                  layoutUrl: "assets/data/layout/warsh/300.svg.json", juz: "الجزء الخامس عشر" },
   "qaloon-svg": { img: ${JSON.stringify(qaloonSvg)}, kind: "page", riwaya: "qaloon", page: 300,
