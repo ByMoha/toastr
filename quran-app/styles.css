@@ -266,7 +266,7 @@ body[data-deco="dark"] .sheet-ayah-text{ color:#eceae4; }
    horizontally with a liquid morph (SVG goo filter on a circles-only layer,
    crisp icons in an unfiltered layer above with identical geometry). */
 .fabwrap{
-  position:absolute; left:50%; bottom:34px; z-index:20;
+  position:absolute; left:712px; bottom:34px; z-index:20;   /* anchored at the side */
   width:0; height:0;
   opacity:0; visibility:hidden;
   transition:opacity .25s ease, visibility 0s linear .25s;
@@ -276,7 +276,7 @@ body[data-deco="dark"] .sheet-ayah-text{ color:#eceae4; }
 
 /* liquid layer */
 .fab-goo{
-  position:absolute; left:-450px; bottom:0; width:560px; height:132px;
+  position:absolute; right:-66px; bottom:0; width:680px; height:132px;
   filter:url(#goo);
   pointer-events:none;
 }
@@ -285,15 +285,15 @@ body[data-deco="dark"] .sheet-ayah-text{ color:#eceae4; }
 }
 .goo-fab{ right:0; width:132px; height:132px; }
 .goo-ball.g1, .goo-ball.g2, .goo-ball.g3, .goo-ball.g4{
-  width:64px; height:64px; bottom:34px; right:34px;
-  transform:translateX(0) scale(.25);
-  transition:transform .46s cubic-bezier(.3,1.15,.4,1);
+  width:80px; height:80px; bottom:26px; right:26px;
+  transform:translateX(0) scale(.4);
+  transition:transform .72s cubic-bezier(.3,1.12,.32,1);
 }
-/* bubbles split leftward out of the icon */
-.fabwrap[data-open="true"] .goo-ball.g1{ transform:translateX(-108px) scale(1); }
-.fabwrap[data-open="true"] .goo-ball.g2{ transform:translateX(-194px) scale(1); transition-delay:.05s; }
-.fabwrap[data-open="true"] .goo-ball.g3{ transform:translateX(-280px) scale(1); transition-delay:.10s; }
-.fabwrap[data-open="true"] .goo-ball.g4{ transform:translateX(-366px) scale(1); transition-delay:.15s; }
+/* bubbles split leftward out of the icon, trailing liquid necks */
+.fabwrap[data-open="true"] .goo-ball.g1{ transform:translateX(-130px) scale(1); }
+.fabwrap[data-open="true"] .goo-ball.g2{ transform:translateX(-230px) scale(1); transition-delay:.09s; }
+.fabwrap[data-open="true"] .goo-ball.g3{ transform:translateX(-330px) scale(1); transition-delay:.18s; }
+.fabwrap[data-open="true"] .goo-ball.g4{ transform:translateX(-430px) scale(1); transition-delay:.27s; }
 
 /* crisp layer: the menu button, anchored at the row's side */
 .fab{
@@ -315,22 +315,22 @@ body[data-deco="dark"] .sheet-ayah-text{ color:#eceae4; }
 
 /* crisp option icons — same travel as their goo bubbles */
 .fab-item{
-  position:absolute; bottom:34px; left:-32px;
-  width:64px; height:64px; border:none; cursor:pointer;
+  position:absolute; bottom:26px; left:-40px;
+  width:80px; height:80px; border:none; cursor:pointer;
   border-radius:50%;
   background:transparent;
   color:#3d3d3f;
   display:flex; align-items:center; justify-content:center;
   opacity:0; pointer-events:none;
-  transform:translateX(0) scale(.25);
-  transition:transform .46s cubic-bezier(.3,1.15,.4,1), opacity .18s ease .1s;
+  transform:translateX(0) scale(.4);
+  transition:transform .72s cubic-bezier(.3,1.12,.32,1), opacity .16s ease .18s;
 }
-.fab-item svg{ width:28px; height:28px; }
+.fab-item svg{ width:32px; height:32px; }
 .fabwrap[data-open="true"] .fab-item{ opacity:1; pointer-events:auto; }
-.fabwrap[data-open="true"] .fab-item.i1{ transform:translateX(-108px) scale(1); }
-.fabwrap[data-open="true"] .fab-item.i2{ transform:translateX(-194px) scale(1); transition-delay:.05s; }
-.fabwrap[data-open="true"] .fab-item.i3{ transform:translateX(-280px) scale(1); transition-delay:.10s; }
-.fabwrap[data-open="true"] .fab-item.i4{ transform:translateX(-366px) scale(1); transition-delay:.15s; }
+.fabwrap[data-open="true"] .fab-item.i1{ transform:translateX(-130px) scale(1); }
+.fabwrap[data-open="true"] .fab-item.i2{ transform:translateX(-230px) scale(1); transition-delay:.09s; }
+.fabwrap[data-open="true"] .fab-item.i3{ transform:translateX(-330px) scale(1); transition-delay:.18s; }
+.fabwrap[data-open="true"] .fab-item.i4{ transform:translateX(-430px) scale(1); transition-delay:.27s; }
 
 /* ---------- Themes: decoration tint + matching paper ----------
    Each theme recolors the artwork AND shifts the paper to the whitest

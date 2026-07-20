@@ -67,11 +67,11 @@
            icon, which stays anchored at the side of the row -->
       <div class="fabwrap" id="fabwrap" data-open="false" aria-hidden="true">
         <svg class="goo-defs" width="0" height="0" aria-hidden="true">
-          <filter id="goo">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur"/>
+          <filter id="goo" x="-20%" y="-40%" width="140%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
             <feColorMatrix in="blur" mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" result="goo"/>
-            <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8" result="goo"/>
+            <feDropShadow in="goo" dx="0" dy="7" stdDeviation="9" flood-color="rgba(50,32,14,0.30)"/>
           </filter>
         </svg>
         <!-- liquid layer: plain circles, blurred+contrast-fused by the filter -->
