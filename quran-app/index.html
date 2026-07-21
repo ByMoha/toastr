@@ -110,7 +110,13 @@
       <div class="toc" id="toc" aria-hidden="true" dir="rtl">
         <div class="sheet-grabber"></div>
         <h2 class="settings-title">الفهرس</h2>
-        <div class="toc-list" id="tocList"></div>
+        <div class="toc-search">
+          <svg class="toc-search-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+          <input type="search" id="tocSearch" class="toc-search-input" placeholder="ابحث باسم السورة أو رقمها…" dir="rtl" autocomplete="off" enterkeyhint="search">
+        </div>
+        <div class="toc-list" id="tocList">
+          <div class="toc-empty" id="tocEmpty" hidden>لا توجد نتائج</div>
+        </div>
       </div>
 
       <!-- Settings (opened from the expanded menu's gear) -->

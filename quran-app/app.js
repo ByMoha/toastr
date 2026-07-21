@@ -307,14 +307,31 @@
   var tocDim = document.getElementById("tocDim");
   var tocBuilt = false;
 
+  // fold Arabic to a diacritic/spelling-insensitive form for forgiving search
+  function normAr(s) {
+    return (s || "")
+      .replace(/[ً-ٰٟـ]/g, "")   // tashkeel, superscript alef, tatweel
+      .replace(/[أإآٱ]/g, "ا") // hamza-alef variants -> alef
+      .replace(/ى/g, "ي")                   // alef maqsura -> ya
+      .replace(/ة/g, "ه")                   // ta marbuta -> ha
+      .replace(/[ؤئء]/g, "")           // drop lone hamza forms
+      .replace(/\s+/g, " ").trim().toLowerCase();
+  }
+  // Arabic-Indic digits -> Latin so "٩٣" and "93" both match
+  function toLatinDigits(s) {
+    return (s || "").replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; });
+  }
+
   function buildToc() {
     if (tocBuilt || !window.Data || !Data.surahs) return;
     var list = document.getElementById("tocList");
-    list.innerHTML = "";
+    var emptyEl = document.getElementById("tocEmpty");
     Data.surahs.forEach(function (s) {
       var pageN = Data.surahStartPage(s.n);
       var row = document.createElement("button");
       row.className = "toc-row";
+      row.dataset.name = normAr("سورة " + s.name);
+      row.dataset.n = String(s.n);
       row.innerHTML =
         '<span class="toc-num">' + window.toArabicDigits(s.n) + '</span>' +
         '<span class="toc-name">سُورَةُ ' + s.name + '</span>' +
@@ -323,11 +340,36 @@
         if (pageN) goToPage(pageN);
         closeToc();
       });
-      list.appendChild(row);
+      list.insertBefore(row, emptyEl);
     });
     tocBuilt = true;
   }
-  function openToc() { buildToc(); tocDim.classList.add("show"); toc.classList.add("show"); toc.setAttribute("aria-hidden", "false"); }
+
+  function filterToc(q) {
+    var listEl = document.getElementById("tocList");
+    var emptyEl = document.getElementById("tocEmpty");
+    var nameQ = normAr(q);
+    var numQ = toLatinDigits(q).replace(/[^\d]/g, "");
+    var rows = listEl.querySelectorAll(".toc-row"), shown = 0;
+    Array.prototype.forEach.call(rows, function (row) {
+      var ok = !q.trim() ||
+        (nameQ && row.dataset.name.indexOf(nameQ) >= 0) ||
+        (numQ && row.dataset.n === numQ) ||
+        (numQ && row.dataset.n.indexOf(numQ) === 0);
+      row.hidden = !ok;
+      if (ok) shown++;
+    });
+    if (emptyEl) emptyEl.hidden = shown > 0;
+  }
+
+  var tocSearch = document.getElementById("tocSearch");
+  if (tocSearch) tocSearch.addEventListener("input", function () { filterToc(tocSearch.value); });
+
+  function openToc() {
+    buildToc();
+    if (tocSearch) { tocSearch.value = ""; filterToc(""); }
+    tocDim.classList.add("show"); toc.classList.add("show"); toc.setAttribute("aria-hidden", "false");
+  }
   function closeToc() { tocDim.classList.remove("show"); toc.classList.remove("show"); toc.setAttribute("aria-hidden", "true"); }
   tocDim.addEventListener("pointerdown", function (e) { e.stopPropagation(); closeToc(); });
   toc.addEventListener("pointerdown", function (e) { e.stopPropagation(); });

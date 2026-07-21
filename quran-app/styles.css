@@ -411,11 +411,36 @@ body[data-deco="dark"] .fab-icon .bar{ fill:#e6e6e8; }
   display:flex; flex-direction:column;
 }
 .toc.show{ transform:translateY(0); }
+.toc-search{
+  position:relative; margin:4px 0 12px;
+}
+.toc-search-ic{
+  position:absolute; right:18px; top:50%; transform:translateY(-50%);
+  width:26px; height:26px; fill:#9a9a9e; pointer-events:none;
+}
+.toc-search-input{
+  width:100%; height:60px; box-sizing:border-box;
+  padding:0 54px 0 20px;
+  border:none; outline:none; border-radius:18px;
+  background:#fff; color:#1c1c1e;
+  font:26px/1 "HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+  -webkit-appearance:none;
+}
+.toc-search-input::placeholder{ color:#b3b3b6; font-size:23px; }
+.toc-search-input::-webkit-search-cancel-button{ -webkit-appearance:none; }
+body[data-deco="dark"] .toc-search-input{ background:#2c2c2e; color:#e8e8ea; }
+body[data-deco="dark"] .toc-search-ic{ fill:#7a7a7e; }
+.toc-empty{
+  padding:48px 22px; text-align:center; color:#9a9a9e;
+  font:26px/1.4 "HafsSmart","Amiri Quran",serif;
+}
 .toc-list{
   flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain;
   background:#fff; border-radius:26px 26px 0 0;
   touch-action:pan-y;
 }
+.toc-row[hidden]{ display:none; }
 body[data-deco="dark"] .toc-list{ background:#2c2c2e; }
 .toc-row{
   display:flex; align-items:center; gap:20px;
