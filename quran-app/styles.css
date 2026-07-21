@@ -264,76 +264,54 @@ body[data-deco="dark"] .sheet-ayah-text{ color:#eceae4; }
 }
 .qword{ color:#8a5a24; font-weight:600; }
 
-/* ---------- Floating primary menu: gooey horizontal bubbles ----------
-   The menu icon stays anchored at the side; option bubbles split out of it
-   horizontally with a liquid morph (SVG goo filter on a circles-only layer,
-   crisp icons in an unfiltered layer above with identical geometry). */
+/* ---------- Floating primary menu: Material speed dial ----------
+   A primary FAB stays anchored at the side; uniform mini-FAB actions slide out
+   of it horizontally with a staggered scale-and-fade, each with its own
+   elevation — the clean Material pattern in place of the earlier liquid goo. */
 .fabwrap{
-  position:absolute; left:712px; bottom:34px; z-index:20;   /* anchored at the side */
+  position:absolute; left:712px; bottom:44px; z-index:20;   /* anchored at the side */
   width:0; height:0;
   opacity:0; visibility:hidden;
   transition:opacity .25s ease, visibility 0s linear .25s;
 }
 .fabwrap.visible{ opacity:1; visibility:visible; transition:opacity .25s ease; }
-.goo-defs{ position:absolute; }
 
-/* liquid layer */
-.fab-goo{
-  position:absolute; right:-66px; bottom:0; width:680px; height:132px;
-  filter:url(#goo);
-  pointer-events:none;
-}
-.goo-ball{
-  position:absolute; bottom:0; border-radius:50%; background:#fff;
-}
-.goo-fab{ right:0; width:132px; height:132px; }
-.goo-ball.g1, .goo-ball.g2, .goo-ball.g3, .goo-ball.g4{
-  width:80px; height:80px; bottom:26px; right:26px;
-  transform:translateX(0) scale(.4);
-  transition:transform .72s cubic-bezier(.3,1.12,.32,1);
-}
-/* bubbles split leftward out of the icon, trailing liquid necks */
-.fabwrap[data-open="true"] .goo-ball.g1{ transform:translateX(-130px) scale(1); }
-.fabwrap[data-open="true"] .goo-ball.g2{ transform:translateX(-230px) scale(1); transition-delay:.09s; }
-.fabwrap[data-open="true"] .goo-ball.g3{ transform:translateX(-330px) scale(1); transition-delay:.18s; }
-.fabwrap[data-open="true"] .goo-ball.g4{ transform:translateX(-430px) scale(1); transition-delay:.27s; }
-
-/* crisp layer: the menu button, anchored at the row's side */
+/* primary FAB — well-proportioned circle with Material elevation */
 .fab{
-  position:absolute; left:-66px; bottom:0;
-  width:132px; height:132px;
+  position:absolute; left:-56px; bottom:0;
+  width:112px; height:112px;
   border:none; outline:none; cursor:pointer;
   border-radius:50%;
-  background:radial-gradient(closest-side, #ffffff 68%, rgba(255,255,255,.86) 82%, rgba(255,255,255,0) 100%);
-  box-shadow:
-    0 0 34px 14px rgba(255,255,255,.72),
-    0 10px 26px rgba(60,40,20,.16),
-    0 2px 6px rgba(0,0,0,.10);
+  background:#fff;
+  box-shadow:0 8px 18px rgba(45,30,12,.22), 0 2px 6px rgba(0,0,0,.14);
   display:flex; align-items:center; justify-content:center;
+  transition:box-shadow .2s ease, transform .15s ease;
 }
-.fab-icon svg{ width:44px; height:44px; display:block; }
-.fab-icon .bar{ fill:#4a4a4c; transition:transform .28s cubic-bezier(.2,.7,.3,1); transform-origin:center; }
+.fab:active{ transform:scale(.94); }
+.fab-icon svg{ width:52px; height:52px; display:block; }
+.fab-icon .bar{ fill:#4a4a4c; transition:transform .3s cubic-bezier(.2,.7,.3,1); transform-origin:center; }
 .fabwrap[data-open="true"] .fab-icon .b1{ transform:translateY(3.5px) rotate(45deg); }
 .fabwrap[data-open="true"] .fab-icon .b2{ transform:translateY(-3.5px) rotate(-45deg); }
 
-/* crisp option icons — same travel as their goo bubbles */
+/* mini-FAB actions — all identical (size, elevation, icon scale) */
 .fab-item{
-  position:absolute; bottom:26px; left:-40px;
-  width:80px; height:80px; border:none; cursor:pointer;
+  position:absolute; bottom:14px; left:-42px;   /* centred on the primary */
+  width:84px; height:84px; border:none; cursor:pointer;
   border-radius:50%;
-  background:transparent;
-  color:#3d3d3f;
+  background:#fff; color:#3d3d3f;
+  box-shadow:0 6px 14px rgba(45,30,12,.18), 0 1px 4px rgba(0,0,0,.12);
   display:flex; align-items:center; justify-content:center;
   opacity:0; pointer-events:none;
-  transform:translateX(0) scale(.4);
-  transition:transform .72s cubic-bezier(.3,1.12,.32,1), opacity .16s ease .18s;
+  transform:translateX(0) scale(.3);
+  transition:transform .34s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
 }
-.fab-item svg{ width:32px; height:32px; }
+.fab-item svg{ width:36px; height:36px; }
+.fab-item:active{ background:#f2f2f3; }
 .fabwrap[data-open="true"] .fab-item{ opacity:1; pointer-events:auto; }
-.fabwrap[data-open="true"] .fab-item.i1{ transform:translateX(-130px) scale(1); }
-.fabwrap[data-open="true"] .fab-item.i2{ transform:translateX(-230px) scale(1); transition-delay:.09s; }
-.fabwrap[data-open="true"] .fab-item.i3{ transform:translateX(-330px) scale(1); transition-delay:.18s; }
-.fabwrap[data-open="true"] .fab-item.i4{ transform:translateX(-430px) scale(1); transition-delay:.27s; }
+.fabwrap[data-open="true"] .fab-item.i1{ transform:translateX(-116px) scale(1); transition-delay:.03s; }
+.fabwrap[data-open="true"] .fab-item.i2{ transform:translateX(-216px) scale(1); transition-delay:.06s; }
+.fabwrap[data-open="true"] .fab-item.i3{ transform:translateX(-316px) scale(1); transition-delay:.09s; }
+.fabwrap[data-open="true"] .fab-item.i4{ transform:translateX(-416px) scale(1); transition-delay:.12s; }
 
 /* ---------- Themes: decoration tint + matching paper ----------
    Each theme recolors the artwork AND shifts the paper to the whitest
@@ -385,10 +363,9 @@ body[data-deco="dark"] .rw-card .rw-name{ color:#e8e8ea; }
 body[data-deco="dark"] .rw-thumb{ filter:invert(1) brightness(.9); }
 body[data-deco="dark"] .chip-name{ color:#cfcfd4; }
 body[data-deco="dark"] .menu-scrim.show{ background:rgba(20,20,22,.45); }
-body[data-deco="dark"] .fab-goo .goo-ball,
-body[data-deco="dark"] .fab{ background:#343436; }
-body[data-deco="dark"] .fab{ background:radial-gradient(closest-side,#343436 68%, rgba(52,52,54,.85) 82%, rgba(52,52,54,0) 100%); box-shadow:0 0 34px 14px rgba(0,0,0,.4), 0 10px 26px rgba(0,0,0,.4); }
-body[data-deco="dark"] .fab-item{ color:#e6e6e8; }
+body[data-deco="dark"] .fab{ background:#343436; box-shadow:0 8px 18px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.4); }
+body[data-deco="dark"] .fab-item{ background:#343436; color:#e6e6e8; box-shadow:0 6px 14px rgba(0,0,0,.5), 0 1px 4px rgba(0,0,0,.4); }
+body[data-deco="dark"] .fab-item:active{ background:#3f3f42; }
 body[data-deco="dark"] .fab-icon .bar{ fill:#e6e6e8; }
 
 /* ---------- Table of contents ---------- */

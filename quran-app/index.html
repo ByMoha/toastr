@@ -63,26 +63,11 @@
         </div>
       </div>
 
-      <!-- Floating primary menu: gooey bubbles splitting horizontally from the
-           icon, which stays anchored at the side of the row -->
+      <!-- Floating primary menu: a Material-style speed dial. Uniform mini-FAB
+           actions slide out of the primary button, which stays anchored at the
+           side and morphs its icon from a menu to a close mark. -->
       <div class="fabwrap" id="fabwrap" data-open="false" aria-hidden="true">
-        <svg class="goo-defs" width="0" height="0" aria-hidden="true">
-          <filter id="goo" x="-20%" y="-40%" width="140%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
-            <feColorMatrix in="blur" mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8" result="goo"/>
-            <feDropShadow in="goo" dx="0" dy="7" stdDeviation="9" flood-color="rgba(50,32,14,0.30)"/>
-          </filter>
-        </svg>
-        <!-- liquid layer: plain circles, blurred+contrast-fused by the filter -->
-        <div class="fab-goo" aria-hidden="true">
-          <span class="goo-ball goo-fab"></span>
-          <span class="goo-ball g1"></span>
-          <span class="goo-ball g2"></span>
-          <span class="goo-ball g3"></span>
-          <span class="goo-ball g4"></span>
-        </div>
-        <!-- crisp layer: the actual buttons + icons, same geometry -->
+        <!-- action buttons: identical mini-FABs, each with its own elevation -->
         <button class="fab-item i1" data-i="1" aria-label="الفهرس">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h11"/><path d="M8 12h11"/><path d="M8 18h11"/><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
         </button>
