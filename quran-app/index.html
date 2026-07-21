@@ -30,6 +30,8 @@
 
       <!-- Real riwāya page SVG, rendered into the page slot (page mode only) -->
       <div class="page-slot" id="pageSlot" aria-hidden="true"></div>
+      <!-- persistent colour marks for saved ayahs (multiplied over the page) -->
+      <div class="marks" id="marksLayer" aria-hidden="true"></div>
       <div class="status-strip" aria-hidden="true"></div>
 
       <!-- Transparent per-ayah tap targets -->
@@ -56,6 +58,17 @@
               <path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/>
             </svg>
           </button>
+        </div>
+        <!-- mark colour picker: tap a colour to mark this ayah with it -->
+        <div class="sheet-marks" id="sheetMarks">
+          <span class="mk-label">لون العلامة</span>
+          <div class="mk-swatches" id="mkSwatches">
+            <button class="mk-sw" data-c="#c8a34e" style="--c:#c8a34e" aria-label="ذهبي"></button>
+            <button class="mk-sw" data-c="#5c9a68" style="--c:#5c9a68" aria-label="أخضر"></button>
+            <button class="mk-sw" data-c="#5486b0" style="--c:#5486b0" aria-label="أزرق"></button>
+            <button class="mk-sw" data-c="#a86a9e" style="--c:#a86a9e" aria-label="بنفسجي"></button>
+            <button class="mk-sw" data-c="#c76b6b" style="--c:#c76b6b" aria-label="وردي"></button>
+          </div>
         </div>
         <div class="sheet-card" id="sheetCard">
           <div class="sheet-ayah" id="sheetAyah"></div>
@@ -101,6 +114,16 @@
         </div>
         <div class="toc-list" id="tocList">
           <div class="toc-empty" id="tocEmpty" hidden>لا توجد نتائج</div>
+        </div>
+      </div>
+
+      <!-- Saved marks / favorites (opened from the menu's العلامات bubble) -->
+      <div class="toc-dim" id="marksDim" aria-hidden="true"></div>
+      <div class="toc marks-screen" id="marksScreen" aria-hidden="true" dir="rtl">
+        <div class="sheet-grabber"></div>
+        <h2 class="settings-title">العلامات</h2>
+        <div class="toc-list" id="marksList">
+          <div class="toc-empty" id="marksEmpty" hidden>لا توجد علامات محفوظة</div>
         </div>
       </div>
 

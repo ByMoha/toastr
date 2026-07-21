@@ -27,6 +27,7 @@
   var fab = document.getElementById("fab");
   var actShare = document.getElementById("actShare");
   var actBookmark = document.getElementById("actBookmark");
+  var mkSwatches = document.getElementById("mkSwatches");
   var medLayer = document.getElementById("medLayer");
   var pageSlot = document.getElementById("pageSlot");
 
@@ -249,6 +250,7 @@
         rebuildHits(buildPageSel(layout));
         buildPageMedallions(layout);
         buildPageChrome(layout, { page: p });
+        renderPageMarks();
         // live header text: juz (from data) + the surahs of this page. Like the
         // design, prefer surahs that BEGIN on the page (their banner is here);
         // if none begins here, show the continuing surah.
@@ -374,6 +376,60 @@
   tocDim.addEventListener("pointerdown", function (e) { e.stopPropagation(); closeToc(); });
   toc.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
 
+  /* -------- Saved marks / favorites screen -------- */
+  var marksScreen = document.getElementById("marksScreen");
+  var marksDim = document.getElementById("marksDim");
+  function buildMarksList() {
+    var list = document.getElementById("marksList");
+    var emptyEl = document.getElementById("marksEmpty");
+    Array.prototype.forEach.call(list.querySelectorAll(".mark-row"), function (r) { r.remove(); });
+    var keys = Object.keys(MARKS);
+    // order by surah then ayah
+    keys.sort(function (a, b) {
+      var pa = a.split(":").map(Number), pb = b.split(":").map(Number);
+      return pa[0] - pb[0] || pa[1] - pb[1];
+    });
+    keys.forEach(function (k) {
+      var parts = k.split(":"), s = +parts[0], a = +parts[1], color = MARKS[k];
+      var name = (window.Data && Data.surahName) ? Data.surahName(s) : String(s);
+      var snippet = (window.Data && Data.ayahText && Data.ayahText(s, a)) || "";
+      snippet = snippet.slice(0, 60);
+      snippet = snippet.replace(/\s*‏?[-]$/, "");
+      var row = document.createElement("button");
+      row.className = "mark-row";
+      row.style.setProperty("--c", color);
+      row.innerHTML =
+        '<span class="mark-dot" aria-hidden="true"></span>' +
+        '<span class="mark-body">' +
+          '<span class="mark-ref">سُورَةُ ' + name + ' • آية ' + window.toArabicDigits(a) + '</span>' +
+          '<span class="mark-snippet">' + snippet + '</span>' +
+        '</span>' +
+        '<span class="mark-del" role="button" aria-label="حذف">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+        '</span>';
+      row.addEventListener("click", function (ev) {
+        if (ev.target.closest(".mark-del")) {
+          setMark(s, a, null);
+          buildMarksList();
+          return;
+        }
+        var page = (window.Data && Data.pageOf && Data.pageOf(s, a)) ||
+          (window.Data && Data.surahStartPage && Data.surahStartPage(s));
+        closeMarks();
+        if (page) goToPage(page);
+      });
+      list.insertBefore(row, emptyEl);
+    });
+    emptyEl.hidden = keys.length > 0;
+  }
+  function openMarks() {
+    buildMarksList();
+    marksDim.classList.add("show"); marksScreen.classList.add("show"); marksScreen.setAttribute("aria-hidden", "false");
+  }
+  function closeMarks() { marksDim.classList.remove("show"); marksScreen.classList.remove("show"); marksScreen.setAttribute("aria-hidden", "true"); }
+  marksDim.addEventListener("pointerdown", function (e) { e.stopPropagation(); closeMarks(); });
+  marksScreen.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+
   /* -------- Settings (riwāya + decoration color) -------- */
   var settings = document.getElementById("settings");
   var settingsDim = document.getElementById("settingsDim");
@@ -386,6 +442,47 @@
 
   function persist(k, v) { try { localStorage.setItem("quran." + k, v); } catch (_) {} }
   function persisted(k) { try { return localStorage.getItem("quran." + k); } catch (_) { return null; } }
+
+  /* -------- Ayah marks (persistent favorites) -------- */
+  var MARK_COLORS = ["#c8a34e", "#5c9a68", "#5486b0", "#a86a9e", "#c76b6b"];
+  var MARKS = {};
+  try { MARKS = JSON.parse(persisted("marks") || "{}") || {}; } catch (_) { MARKS = {}; }
+  var lastMarkColor = persisted("markColor") || MARK_COLORS[0];
+  function markKey(s, a) { return s + ":" + a; }
+  function getMark(s, a) { return (s != null && MARKS[markKey(s, a)]) || null; }
+  function setMark(s, a, color) {
+    if (s == null || a == null) return;
+    if (color) { MARKS[markKey(s, a)] = color; lastMarkColor = color; persist("markColor", color); }
+    else delete MARKS[markKey(s, a)];
+    persist("marks", JSON.stringify(MARKS));
+    renderPageMarks();
+  }
+
+  // draw a soft colour band behind every marked ayah on the current page
+  function renderPageMarks() {
+    var layer = document.getElementById("marksLayer");
+    if (!layer) return;
+    layer.innerHTML = "";
+    if (!SEL) return;
+    Object.keys(SEL).forEach(function (id) {
+      var e = SEL[id]; if (!e.sa) return;
+      var color = getMark(e.sa.s, e.sa.a);
+      if (!color) return;
+      e.rects.forEach(function (r, i) {
+        var x = r[0], y = r[1], w = r[2], h = r[3];
+        var isLast = i === e.rects.length - 1;
+        var padL = isLast ? 46 : 6, padR = 6;
+        var band = document.createElement("div");
+        band.className = "mark-band";
+        band.style.background = color;
+        band.style.left = (x + padL) + "px";
+        band.style.top = (y + Math.round(h * 0.34)) + "px";
+        band.style.width = Math.max(0, w - padL - padR) + "px";
+        band.style.height = Math.round(h * 0.40) + "px";
+        layer.appendChild(band);
+      });
+    });
+  }
 
   function syncSettingsUI() {
     Array.prototype.forEach.call(document.querySelectorAll(".rw-card"), function (r) {
@@ -572,7 +669,8 @@
     fillSheet(e);
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden", "false");
-    actBookmark.classList.remove("saved");
+    state.sheetAyah = e.sa;
+    syncSheetMarks(e.sa);
     clearTimeout(sheetTimer);
     sheetTimer = setTimeout(function () {
       sheet.classList.add("show");
@@ -678,13 +776,36 @@
       closeMenu();
       if (it.dataset.i === "4") { setFabVisible(false, true); openSettings(); }
       if (it.dataset.i === "1") { setFabVisible(false, true); openToc(); }
+      if (it.dataset.i === "2") { setFabVisible(false, true); openMarks(); }
+      if (it.dataset.i === "3") { setFabVisible(false, true); openToc(); if (tocSearch) tocSearch.focus(); }
     });
   });
 
   /* -------- Sheet actions -------- */
+  // reflect the current ayah's mark (bookmark fill + active swatch)
+  function syncSheetMarks(sa) {
+    var color = sa ? getMark(sa.s, sa.a) : null;
+    actBookmark.classList.toggle("saved", !!color);
+    actBookmark.style.color = color || "";
+    Array.prototype.forEach.call(mkSwatches.querySelectorAll(".mk-sw"), function (sw) {
+      sw.classList.toggle("active", color ? sw.dataset.c === color : sw.dataset.c === lastMarkColor);
+    });
+  }
+  // tap a colour: mark this ayah with it, or unmark if it's the current colour
+  Array.prototype.forEach.call(mkSwatches.querySelectorAll(".mk-sw"), function (sw) {
+    sw.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      var sa = state.sheetAyah; if (!sa) return;
+      var c = sw.dataset.c;
+      setMark(sa.s, sa.a, getMark(sa.s, sa.a) === c ? null : c);
+      syncSheetMarks(sa);
+    });
+  });
   actBookmark.addEventListener("click", function (e) {
     e.stopPropagation();
-    actBookmark.classList.toggle("saved");
+    var sa = state.sheetAyah; if (!sa) return;
+    setMark(sa.s, sa.a, getMark(sa.s, sa.a) ? null : lastMarkColor);
+    syncSheetMarks(sa);
   });
   actShare.addEventListener("click", function (e) {
     e.stopPropagation();
@@ -697,6 +818,7 @@
     setArt: setArt, cycleRiwaya: cycleRiwaya,
     turnPage: turnPage, goToPage: goToPage,
     openToc: openToc, closeToc: closeToc,
+    openMarks: openMarks, closeMarks: closeMarks,
     openSettings: openSettings, closeSettings: closeSettings,
     modes: function () { return CYCLE.slice(); },
     ids: function () { return Object.keys(SEL); }
