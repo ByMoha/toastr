@@ -215,8 +215,8 @@
       bl.appendChild(d);
     });
     var pn = document.getElementById("pageNum");
-    pn.style.top = "1652px";
-    pn.textContent = window.toArabicDigits(a.page);
+    pn.style.top = "1648px";
+    pn.innerHTML = '<span class="pn-val">' + window.toArabicDigits(a.page) + "</span>";
   }
 
   /* -------- Art switching -------- */

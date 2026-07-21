@@ -19,17 +19,11 @@
   --deco-accent: #b07a3c;
 }
 
-/* ornament style 2 (أندلسي): generated vector masks, tinted by the theme */
-body[data-orn="2"] .banner{
-  background:var(--deco-accent); filter:none;
-  -webkit-mask:url("assets/ui/orn2-banner.svg") center / 100% 100% no-repeat;
-  mask:url("assets/ui/orn2-banner.svg") center / 100% 100% no-repeat;
-}
-body[data-orn="2"] .juz-frame::before{
-  background:var(--deco-accent); filter:none;
-  -webkit-mask:url("assets/ui/orn2-header.svg") center / 100% 100% no-repeat;
-  mask:url("assets/ui/orn2-header.svg") center / 100% 100% no-repeat;
-}
+/* Decoration style (نمط الزخرفة): three ornamental surah-banner layouts.
+   Option 1 (arched) is the default set on .banner; 2 and 3 swap the artwork.
+   All are tinted to the active theme through --tag-tint. */
+body[data-orn="2"] .banner{ background-image:url("assets/ui/surah-banner-alt.png"); }
+body[data-orn="3"] .banner{ background-image:url("assets/ui/surah-banner-round.png"); }
 
 /* KFGQPC Uthmanic Hafs Smart v8 — renders the sheet's ayah as live text */
 @font-face{
@@ -111,16 +105,25 @@ body{
 /* ornate surah banners drawn in the extracted band zones */
 .banner{
   position:absolute; pointer-events:none;
-  background:url("assets/ui/surah-banner.png") center / 100% 100% no-repeat;
+  background:url("assets/ui/surah-banner-angular.png") center / 100% 100% no-repeat;
   filter:var(--tag-tint);
 }
 
-/* app-drawn page number (the SVG's own is stripped) */
+/* app-drawn page number inside the ornamental cartouche (both are chrome the
+   design adds over the mushaf; the SVG's own bare number is stripped) */
 .page-num{
-  position:absolute; left:0; width:804px; text-align:center;
+  position:absolute; left:0; width:804px; height:54px;
+  display:flex; align-items:center; justify-content:center;
   font-family:"HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
-  font-size:34px; color:var(--tag-num);
+  font-size:29px; color:var(--tag-num);
 }
+.page-num::before{
+  content:""; position:absolute; left:50%; top:50%;
+  width:150px; height:52px; transform:translate(-50%,-50%);
+  background:url("assets/ui/page-frame.png") center / 100% 100% no-repeat;
+  filter:var(--tag-tint);
+}
+.page-num .pn-val{ position:relative; z-index:1; line-height:1; transform:translateY(-3px); }
 .juz-frame span{
   position:absolute; top:50%; transform:translateY(-54%);
   white-space:nowrap;
@@ -565,15 +568,10 @@ body[data-deco="dark"] .toc-name{ color:#e8e8ea; }
   content:""; position:absolute; left:8%; right:8%; top:50%; height:44px;
   transform:translateY(-50%);
 }
-.orn-prev.p1::after{
-  background:url("assets/ui/surah-banner.png") center / contain no-repeat;
-  filter:var(--tag-tint);
-}
-.orn-prev.p2::after{
-  background:var(--deco-accent);
-  -webkit-mask:url("assets/ui/orn2-banner.svg") center / contain no-repeat;
-  mask:url("assets/ui/orn2-banner.svg") center / contain no-repeat;
-}
+.orn-prev::after{ filter:var(--tag-tint); }
+.orn-prev.p1::after{ background:url("assets/ui/surah-banner-angular.png") center / contain no-repeat; }
+.orn-prev.p2::after{ background:url("assets/ui/surah-banner-alt.png") center / contain no-repeat; }
+.orn-prev.p3::after{ background:url("assets/ui/surah-banner-round.png") center / contain no-repeat; }
 
 /* subtle scrim behind the expanded menu so it reads over the page */
 .menu-scrim{
