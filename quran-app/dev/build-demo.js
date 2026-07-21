@@ -57,10 +57,14 @@ const layoutDouriSvg = readJson('assets/data/layout/douri/300.svg.json');
 const keys = DEMO_PAGES.flatMap(p => (pagemap[String(p)] || []).map(([s, a]) => s + ':' + a))
   .concat(layoutWarshSvg.medallions.map(m => m.s + ':' + m.a));
 const pick = (obj) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k, obj[k]]));
+const translation = readJson('assets/data/translation.json');
+const translit = readJson('assets/data/translit.json');
 const inline = {
   ayat: pick(ayat),
   gharib: pick(gharib),
   uthmani: pick(uthmani),
+  translation,
+  translit,
   surahs,
   pagemap: pagemap,
   juzpage: readJson('assets/data/juzpage.json'),

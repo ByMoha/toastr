@@ -37,6 +37,10 @@
       <!-- Transparent per-ayah tap targets -->
       <div class="hits" id="hits"></div>
 
+      <!-- International (translation) view: per-ayah cards, shown when the
+           reading mode is switched to الترجمة in settings -->
+      <div class="intl-view" id="intlView" aria-hidden="true"></div>
+
       <!-- Dim + highlight overlay (screens 2 & 3) -->
       <div class="overlay" id="overlay" aria-hidden="true">
         <div class="dim" id="dim"></div>
@@ -144,6 +148,20 @@
       <div class="settings" id="settings" aria-hidden="true" dir="rtl">
         <div class="sheet-grabber"></div>
         <h2 class="settings-title">الإعدادات</h2>
+
+        <div class="settings-section">
+          <div class="settings-label">وضع القراءة</div>
+          <div class="view-cards" id="viewList">
+            <button class="view-card" data-view="mushaf">
+              <span class="view-thumb vt-mushaf" aria-hidden="true"></span>
+              <span class="view-name">المصحف</span>
+            </button>
+            <button class="view-card" data-view="translation">
+              <span class="view-thumb vt-intl" aria-hidden="true"></span>
+              <span class="view-name">الترجمة</span>
+            </button>
+          </div>
+        </div>
 
         <div class="settings-section">
           <div class="settings-label">الرواية</div>

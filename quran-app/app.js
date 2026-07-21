@@ -251,6 +251,7 @@
         buildPageMedallions(layout);
         buildPageChrome(layout, { page: p });
         renderPageMarks();
+        if (viewMode === "translation") renderIntlView(p);
         // live header text: juz (from data) + the surahs of this page. Like the
         // design, prefer surahs that BEGIN on the page (their banner is here);
         // if none begins here, show the continuing surah.
@@ -463,6 +464,77 @@
   marksDim.addEventListener("pointerdown", function (e) { e.stopPropagation(); closeMarks(); });
   marksScreen.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
 
+  /* -------- International (translation) view -------- */
+  var intlView = document.getElementById("intlView");
+  var viewMode = persisted("view") === "translation" ? "translation" : "mushaf";
+  var ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5"/><path d="M8.5 6.8 12 3.2l3.5 3.6"/><path d="M7 10H6a2.2 2.2 0 0 0-2.2 2.2v6.4A2.2 2.2 0 0 0 6 20.8h12a2.2 2.2 0 0 0 2.2-2.2v-6.4A2.2 2.2 0 0 0 18 10h-1"/></svg>';
+  var ICON_BM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/></svg>';
+
+  function renderIntlView(page) {
+    if (!intlView || !window.Data) return;
+    intlView.innerHTML = "";
+    var ayat = Data.pageAyat(page) || [];
+    var lastSurah = null;
+    ayat.forEach(function (sa) {
+      var s = sa[0], a = sa[1];
+      if (a === 1 && s !== lastSurah) {
+        var head = document.createElement("div");
+        head.className = "intl-surah-head";
+        head.textContent = "سُورَةُ " + Data.surahName(s);
+        intlView.appendChild(head);
+      }
+      lastSurah = s;
+      var ar = (Data.uthmaniOf(s, a) || "").replace(/[\uE000-\uF8FF]\s*$/, "");
+      var tr = Data.translitOf(s, a), en = Data.translationOf(s, a);
+      var card = document.createElement("div");
+      card.className = "intl-ayah";
+      card.innerHTML =
+        '<div class="intl-top">' +
+          '<div class="intl-actions">' +
+            '<button class="intl-share" aria-label="مشاركة">' + ICON_SHARE + '</button>' +
+            '<button class="intl-bm" aria-label="حفظ">' + ICON_BM + '</button>' +
+          '</div>' +
+          '<div class="intl-med"></div>' +
+        '</div>' +
+        '<div class="intl-ar" dir="rtl"></div>' +
+        '<div class="intl-tr' + (tr ? '' : ' empty') + '" dir="ltr"></div>' +
+        '<div class="intl-en' + (en ? '' : ' empty') + '" dir="ltr"></div>';
+      card.querySelector(".intl-ar").textContent = ar;
+      card.querySelector(".intl-tr").textContent = tr || "—";
+      card.querySelector(".intl-en").textContent = en || "الترجمة غير محمّلة لهذه الآية";
+      if (window.Medallion) card.querySelector(".intl-med").appendChild(Medallion.node(a, 52));
+      var bm = card.querySelector(".intl-bm");
+      function paintBm() {
+        var c = getMark(s, a);
+        bm.classList.toggle("saved", !!c);
+        bm.style.color = c || "";
+      }
+      paintBm();
+      bm.addEventListener("click", function () {
+        setMark(s, a, getMark(s, a) ? null : lastMarkColor); paintBm();
+      });
+      card.querySelector(".intl-share").addEventListener("click", function () {
+        if (navigator.share) { try { navigator.share({ title: "القرآن الكريم" }); } catch (_) {} }
+      });
+      intlView.appendChild(card);
+    });
+    intlView.scrollTop = 0;
+  }
+  function applyViewMode() {
+    if (viewMode === "translation") {
+      document.body.dataset.view = "translation";
+      if (curPage) renderIntlView(curPage);
+    } else {
+      delete document.body.dataset.view;
+    }
+  }
+  function setViewMode(m) {
+    viewMode = m === "translation" ? "translation" : "mushaf";
+    persist("view", viewMode);
+    applyViewMode();
+    syncSettingsUI();
+  }
+
   /* -------- Settings (riwāya + decoration color) -------- */
   var settings = document.getElementById("settings");
   var settingsDim = document.getElementById("settingsDim");
@@ -529,6 +601,9 @@
     Array.prototype.forEach.call(document.querySelectorAll(".orn-chip"), function (s) {
       s.classList.toggle("active", s.dataset.orn === orn);
     });
+    Array.prototype.forEach.call(document.querySelectorAll(".view-card"), function (v) {
+      v.classList.toggle("active", v.dataset.view === viewMode);
+    });
   }
   function openSettings() {
     syncSettingsUI();
@@ -551,6 +626,9 @@
       persist("art", r.dataset.art);
       syncSettingsUI();
     });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".view-card"), function (v) {
+    v.addEventListener("click", function () { setViewMode(v.dataset.view); });
   });
   Array.prototype.forEach.call(document.querySelectorAll(".theme-chip"), function (s) {
     s.addEventListener("click", function () {
@@ -580,8 +658,9 @@
   var savedPage = parseInt(persisted("page." + artMode), 10) || null;
 
   // content data, then initial art state
-  if (window.Data) Data.load().then(function () { setArt(artMode, savedPage); }).catch(function () {});
+  if (window.Data) Data.load().then(function () { setArt(artMode, savedPage); applyViewMode(); }).catch(function () {});
   else rebuildHits(buildCaptureSel());
+  if (viewMode === "translation") document.body.dataset.view = "translation";
 
   /* -------- Scale the stage to fit -------- */
   function fit() {
