@@ -382,9 +382,8 @@
   function buildMarksList() {
     var list = document.getElementById("marksList");
     var emptyEl = document.getElementById("marksEmpty");
-    Array.prototype.forEach.call(list.querySelectorAll(".mark-row"), function (r) { r.remove(); });
+    Array.prototype.forEach.call(list.querySelectorAll(".mark-cardwrap"), function (r) { r.remove(); });
     var keys = Object.keys(MARKS);
-    // order by surah then ayah
     keys.sort(function (a, b) {
       var pa = a.split(":").map(Number), pb = b.split(":").map(Number);
       return pa[0] - pb[0] || pa[1] - pb[1];
@@ -392,36 +391,70 @@
     keys.forEach(function (k) {
       var parts = k.split(":"), s = +parts[0], a = +parts[1], color = MARKS[k];
       var name = (window.Data && Data.surahName) ? Data.surahName(s) : String(s);
-      var snippet = (window.Data && Data.ayahText && Data.ayahText(s, a)) || "";
-      snippet = snippet.slice(0, 60);
-      snippet = snippet.replace(/\s*‏?[-]$/, "");
-      var row = document.createElement("button");
-      row.className = "mark-row";
-      row.style.setProperty("--c", color);
-      row.innerHTML =
-        '<span class="mark-dot" aria-hidden="true"></span>' +
-        '<span class="mark-body">' +
-          '<span class="mark-ref">سُورَةُ ' + name + ' • آية ' + window.toArabicDigits(a) + '</span>' +
-          '<span class="mark-snippet">' + snippet + '</span>' +
-        '</span>' +
-        '<span class="mark-del" role="button" aria-label="حذف">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
-        '</span>';
-      row.addEventListener("click", function (ev) {
-        if (ev.target.closest(".mark-del")) {
-          setMark(s, a, null);
-          buildMarksList();
-          return;
-        }
+      var text = (window.Data && Data.uthmaniOf && Data.uthmaniOf(s, a)) || "";
+      text = text.replace(/\s*\u200F?[\uE900-\uEB00]$/, "");
+      if (!text) text = (window.Data && Data.ayahText && Data.ayahText(s, a)) || "";
+
+      var wrap = document.createElement("div");
+      wrap.className = "mark-cardwrap";
+      wrap.style.setProperty("--c", color);
+      var del = document.createElement("div");
+      del.className = "mark-swipe-del";
+      del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>';
+      var card = document.createElement("div");
+      card.className = "mark-card";
+      card.innerHTML =
+        '<div class="mark-card-top">' +
+          '<span class="mc-surah"><span class="mc-med"></span>سُورَةُ ' + name + '</span>' +
+          '<span class="mc-tag"><span class="mc-num">آية ' + window.toArabicDigits(a) + '</span>' +
+            '<svg class="mc-flag" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 3h11a1 1 0 0 1 1 1v17l-6.5-4.7L5.5 21V4a1 1 0 0 1 1-1Z"/></svg>' +
+          '</span>' +
+        '</div>' +
+        '<div class="mc-text" dir="rtl"></div>';
+      card.querySelector(".mc-text").textContent = text;
+      if (window.Medallion) card.querySelector(".mc-med").appendChild(Medallion.node(a, 34));
+      wrap.appendChild(del);
+      wrap.appendChild(card);
+      attachSwipeDelete(wrap, card);
+      card.addEventListener("click", function () {
+        if (wrap.dataset.swiped === "1") return;
         var page = (window.Data && Data.pageOf && Data.pageOf(s, a)) ||
           (window.Data && Data.surahStartPage && Data.surahStartPage(s));
         closeMarks();
         if (page) goToPage(page);
       });
-      list.insertBefore(row, emptyEl);
+      del.addEventListener("click", function () { setMark(s, a, null); buildMarksList(); });
+      list.insertBefore(wrap, emptyEl);
     });
     emptyEl.hidden = keys.length > 0;
   }
+
+  // iOS-style swipe-left to reveal a delete action on a favorites card
+  function attachSwipeDelete(wrap, card) {
+    var startX = 0, dx = 0, dragging = false, open = false;
+    var OPEN = 96, THRESH = 46;
+    card.addEventListener("pointerdown", function (e) {
+      dragging = true; startX = e.clientX; card.style.transition = "none";
+      try { card.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    card.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      dx = e.clientX - startX + (open ? -OPEN : 0);
+      if (dx > 0) dx = 0; if (dx < -OPEN - 20) dx = -OPEN - 20;
+      card.style.transform = "translateX(" + dx + "px)";
+      if (Math.abs(dx) > 6) wrap.dataset.swiped = "1";
+    });
+    function end() {
+      if (!dragging) return; dragging = false;
+      card.style.transition = "transform .22s ease";
+      open = dx < -THRESH;
+      card.style.transform = "translateX(" + (open ? -OPEN : 0) + "px)";
+      setTimeout(function () { wrap.dataset.swiped = "0"; }, 80);
+    }
+    card.addEventListener("pointerup", end);
+    card.addEventListener("pointercancel", end);
+  }
+
   function openMarks() {
     buildMarksList();
     marksDim.classList.add("show"); marksScreen.classList.add("show"); marksScreen.setAttribute("aria-hidden", "false");

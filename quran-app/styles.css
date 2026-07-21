@@ -505,39 +505,36 @@ body[data-deco="dark"] .toc-name{ color:#e8e8ea; }
   font:22px/1 -apple-system,"Segoe UI",sans-serif; color:#9a9a9e;
 }
 
-/* saved-marks (favorites) rows */
-.mark-row{
-  display:flex; align-items:center; gap:18px;
-  width:100%; padding:18px 22px;
-  border:none; background:none; cursor:pointer;
-  border-bottom:1.5px solid #efeff0;
-  font-family:inherit; text-align:right;
+/* saved-marks (favorites) — cards with swipe-to-delete */
+.marks-screen .toc-list{ background:transparent; border-radius:0; padding:4px 4px 20px; }
+.mark-cardwrap{ position:relative; margin:0 0 14px; border-radius:22px; overflow:hidden; }
+.mark-swipe-del{
+  position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:flex-start; padding-left:34px;
+  background:#f6dede; border-radius:22px; cursor:pointer;
 }
-body[data-deco="dark"] .mark-row{ border-bottom-color:#3a3a3d; }
-.mark-row:active{ background:#f5f5f6; }
-body[data-deco="dark"] .mark-row:active{ background:#38383b; }
-.mark-dot{
-  flex:0 0 auto; width:26px; height:26px; border-radius:50%;
-  background:var(--c); box-shadow:0 1px 2px rgba(0,0,0,.2);
+.mark-swipe-del svg{ width:36px; height:36px; color:#e0504f; }
+.mark-card{
+  position:relative; background:#fff; border-radius:22px;
+  padding:20px 22px 22px; box-shadow:0 1px 5px rgba(0,0,0,.07);
+  cursor:pointer; touch-action:pan-y; will-change:transform;
 }
-.mark-body{ flex:1 1 auto; min-width:0; }
-.mark-ref{
-  display:block;
-  font:23px/1.3 "HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
-  color:#1c1c1e; margin-bottom:5px;
+body[data-deco="dark"] .mark-card{ background:#2c2c2e; }
+.mark-card-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.mc-surah{
+  display:flex; align-items:center; gap:12px;
+  font:27px/1 "HafsSmart","Amiri Quran","Scheherazade New",serif; color:#1c1c1e;
 }
-body[data-deco="dark"] .mark-ref{ color:#e8e8ea; }
-.mark-snippet{
-  display:block;
-  font:24px/1.5 "HafsSmart","Amiri Quran","Scheherazade New",serif;
-  color:#9a9a9e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+body[data-deco="dark"] .mc-surah{ color:#e8e8ea; }
+.mc-med{ width:34px; height:34px; display:flex; }
+.mc-tag{ display:flex; align-items:center; gap:12px; }
+.mc-num{ font:21px/1 "HafsSmart","Amiri Quran",serif; color:#9a9a9e; }
+.mc-flag{ width:22px; height:28px; color:var(--c); }
+.mc-text{
+  font:34px/1.95 "HafsSmart","Amiri Quran","Scheherazade New",serif;
+  color:#1b1b1d; text-align:center; direction:rtl;
 }
-.mark-del{
-  flex:0 0 auto; width:44px; height:44px; border:none; background:none;
-  cursor:pointer; color:#c4c4c8; display:flex; align-items:center; justify-content:center;
-}
-.mark-del svg{ width:26px; height:26px; }
-.mark-del:active{ color:#e06666; }
+body[data-deco="dark"] .mc-text{ color:#e8e6e0; }
 
 /* ---------- Settings page ---------- */
 .settings-dim{
