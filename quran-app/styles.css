@@ -550,7 +550,7 @@ body[data-deco="dark"] .toc-num{ background:#3a352c; }
 body[data-deco="dark"] .toc-name{ color:#e8e8ea; }
 .toc-page{
   flex:0 0 auto;
-  font:22px/1 -apple-system,"Segoe UI",sans-serif; color:#9a9a9e;
+  font:24px/1 "HafsSmart","Amiri Quran","Scheherazade New",serif; color:#9a9a9e;
 }
 
 /* saved-marks (favorites) — cards with swipe-to-delete */
