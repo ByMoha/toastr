@@ -431,12 +431,15 @@
       var x = r[0], y = r[1], w = r[2], h = r[3];
       var isLast = i === e.rects.length - 1;
       var padL = isLast ? 50 : 7, padR = 7;
+      // rose marker sits *behind* the glyph bodies (straddling the baseline),
+      // so the multiplied page-art clip on top reads as a highlighter — black
+      // words over rose — rather than a solid bar in the descender gap.
       var rose = document.createElement("div");
       rose.className = "hl-rose";
       rose.style.left = (x + padL) + "px";
-      rose.style.top = (y + Math.round(h * 0.53)) + "px";
+      rose.style.top = (y + Math.round(h * 0.34)) + "px";
       rose.style.width = Math.max(0, w - padL - padR) + "px";
-      rose.style.height = Math.round(h * 0.32) + "px";
+      rose.style.height = Math.round(h * 0.40) + "px";
       hl.appendChild(rose);
       // page mode: the ayah's tag artwork stays visible inside the highlight
       if (isPage && e.med && e.med.x >= x && e.med.x <= x + w &&
