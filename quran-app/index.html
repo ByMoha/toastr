@@ -46,12 +46,24 @@
       <!-- Bottom sheet (screen 3) -->
       <div class="sheet" id="sheet" aria-hidden="true">
         <div class="sheet-grabber"></div>
+        <!-- audio scrubber, shown while a recitation is playing -->
+        <div class="sheet-progress" id="sheetProgress" hidden>
+          <div class="sp-track" id="spTrack">
+            <div class="sp-fill" id="spFill"></div>
+            <div class="sp-knob" id="spKnob"></div>
+          </div>
+          <div class="sp-times"><span id="spCur">0:00</span><span id="spDur">0:00</span></div>
+        </div>
         <div class="sheet-actions">
           <button class="pill" id="actShare" aria-label="مشاركة">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 15V3.5"/><path d="M8.5 6.8 12 3.2l3.5 3.6"/>
               <path d="M7 10H6a2.2 2.2 0 0 0-2.2 2.2v6.4A2.2 2.2 0 0 0 6 20.8h12a2.2 2.2 0 0 0 2.2-2.2v-6.4A2.2 2.2 0 0 0 18 10h-1"/>
             </svg>
+          </button>
+          <button class="pill" id="actPlay" aria-label="استماع">
+            <svg class="ic-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>
+            <svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5h3.2v15H7zM13.8 4.5H17v15h-3.2z"/></svg>
           </button>
           <button class="pill" id="actBookmark" aria-label="حفظ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">

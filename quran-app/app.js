@@ -671,6 +671,7 @@
     overlay.setAttribute("aria-hidden", "false");
     state.sheetAyah = e.sa;
     syncSheetMarks(e.sa);
+    resetPlayer();
     clearTimeout(sheetTimer);
     sheetTimer = setTimeout(function () {
       sheet.classList.add("show");
@@ -681,6 +682,7 @@
 
   function closeSelection() {
     clearTimeout(sheetTimer);
+    resetPlayer();
     sheet.classList.remove("show");
     sheet.setAttribute("aria-hidden", "true");
     overlay.classList.remove("show");
@@ -811,6 +813,74 @@
     e.stopPropagation();
     if (navigator.share) { try { navigator.share({ title: "القرآن الكريم" }); } catch (_) {} }
   });
+
+  /* -------- Recitation player (UI; wires to <audio> when a source exists) -------- */
+  var actPlay = document.getElementById("actPlay");
+  var sheetProgress = document.getElementById("sheetProgress");
+  var spFill = document.getElementById("spFill");
+  var spKnob = document.getElementById("spKnob");
+  var spCur = document.getElementById("spCur");
+  var spDur = document.getElementById("spDur");
+  var player = { playing: false, t: 0, dur: 93, timer: null };
+  function fmtTime(s) {
+    s = Math.max(0, Math.round(s));
+    var m = Math.floor(s / 60), ss = s % 60;
+    return m + ":" + (ss < 10 ? "0" : "") + ss;
+  }
+  function paintPlayer() {
+    var pct = player.dur ? Math.min(1, player.t / player.dur) : 0;
+    spFill.style.width = (pct * 100) + "%";
+    spKnob.style.left = (pct * 100) + "%";
+    spCur.textContent = fmtTime(player.t);
+    spDur.textContent = fmtTime(player.dur);
+  }
+  function setPlaying(on) {
+    player.playing = on;
+    actPlay.classList.toggle("playing", on);
+    sheetProgress.hidden = !on && player.t === 0;
+    clearInterval(player.timer);
+    if (on) {
+      sheetProgress.hidden = false;
+      player.timer = setInterval(function () {
+        player.t += 0.25;
+        if (player.t >= player.dur) { player.t = player.dur; paintPlayer(); setPlaying(false); return; }
+        paintPlayer();
+      }, 250);
+    }
+  }
+  function resetPlayer() { setPlaying(false); player.t = 0; sheetProgress.hidden = true; paintPlayer(); }
+  actPlay.addEventListener("click", function (e) {
+    e.stopPropagation();
+    setPlaying(!player.playing);
+    paintPlayer();
+  });
+  spTrackSeek();
+  function spTrackSeek() {
+    var track = document.getElementById("spTrack");
+    if (!track) return;
+    track.addEventListener("pointerdown", function (e) {
+      e.stopPropagation();
+      var r = track.getBoundingClientRect();
+      player.t = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * player.dur;
+      paintPlayer();
+    });
+  }
+
+  /* -------- Universal press ripple -------- */
+  var RIPPLE_SEL = ".pill,.fab,.fab-item,.rw-card,.theme-chip,.orn-chip,.mk-sw,.toc-row,.mark-row,.mark-del";
+  document.addEventListener("pointerdown", function (e) {
+    var el = e.target.closest(RIPPLE_SEL);
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    var size = Math.max(r.width, r.height) * 1.1;
+    var rip = document.createElement("span");
+    rip.className = "ripple";
+    rip.style.width = rip.style.height = size + "px";
+    rip.style.left = (e.clientX - r.left - size / 2) + "px";
+    rip.style.top = (e.clientY - r.top - size / 2) + "px";
+    el.appendChild(rip);
+    setTimeout(function () { rip.remove(); }, 560);
+  }, true);
 
   window.__quran = {
     selectAyah: selectAyah, closeSelection: closeSelection, setFabVisible: setFabVisible,

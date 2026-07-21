@@ -209,9 +209,38 @@ body{
 
 .sheet-actions{
   display:flex; gap:16px;
-  direction:ltr;            /* share on the left, bookmark on the right (play removed) */
+  direction:ltr;            /* share · play · bookmark */
   margin-bottom:16px;
 }
+/* audio scrubber */
+.sheet-progress{ margin:2px 8px 16px; }
+.sp-track{ position:relative; height:6px; border-radius:3px; background:#d3d3d7; }
+body[data-deco="dark"] .sp-track{ background:#48484c; }
+.sp-fill{ position:absolute; left:0; top:0; height:100%; width:0; border-radius:3px; background:var(--gold); }
+.sp-knob{
+  position:absolute; top:50%; left:0; width:22px; height:22px; border-radius:50%;
+  background:var(--gold); transform:translate(-50%,-50%);
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.sp-times{
+  display:flex; justify-content:space-between; direction:ltr; margin-top:12px;
+  font:22px/1 -apple-system,"Segoe UI",sans-serif; color:#9a9a9e;
+}
+.pill .ic-play{ margin-left:4px; }   /* optical centring of the triangle */
+.pill .ic-pause{ display:none; }
+#actPlay.playing .ic-play{ display:none; }
+#actPlay.playing .ic-pause{ display:inline-block; margin-left:0; }
+
+/* ---------- Universal press ripple ---------- */
+.pill, .fab, .fab-item, .rw-card, .theme-chip, .orn-chip, .mk-sw,
+.toc-row, .mark-row, .mark-del{ position:relative; overflow:hidden; }
+.ripple{
+  position:absolute; border-radius:50%; pointer-events:none;
+  background:currentColor; opacity:.16; transform:scale(0);
+  animation:rippleUp .55s cubic-bezier(.25,.6,.3,1) forwards;
+}
+@keyframes rippleUp{ to{ transform:scale(2.4); opacity:0; } }
+@media (prefers-reduced-motion: reduce){ .ripple{ display:none; } }
 .pill{
   flex:1 1 0;
   height:92px;
