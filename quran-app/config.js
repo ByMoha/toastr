@@ -15,6 +15,13 @@ window.QURAN_CONFIG = {
   // number of pages in the standard Madani mushaf
   pages: 604,
 
+  /* Analytics — Microsoft Clarity (heatmaps + session recording + custom events).
+   * Create a project at https://clarity.microsoft.com and paste its ID here.
+   * Leave the id empty to disable tracking entirely (e.g. local/offline builds). */
+  analytics: {
+    clarity: { projectId: "", enabled: true }
+  },
+
   /* Shared chrome assets (theme-tintable via CSS vars --tag-tint / --tag-num).
    * The aya-tag is the official "open" medallion — the app renders the ayah
    * number into its open centre (see medallion.js `art`). Banners/header are

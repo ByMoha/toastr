@@ -32,6 +32,8 @@
   var pageSlot = document.getElementById("pageSlot");
 
   var PAGE_BAKED_MEDALLIONS = true;
+  // analytics helper — no-op unless analytics.js wired Clarity in
+  var track = window.track || function () {};
 
   /* -------- Art registry (demo switcher) --------
      baked / overlay = the design capture; *-svg = real riwāya pages. */
@@ -314,6 +316,7 @@
     var a = ART[artMode];
     var mode = (a && a.kind === "page" && (a.template || a.imgByPage)) ? artMode : "hafs-svg";
     if (!artHasPage(ART[mode], p)) return;
+    track("page_view", { page: p, riwaya: ART[mode] && ART[mode].riwaya });
     setArt(mode, p).then(function () { persist("page." + mode, p); persist("art", mode); });
   }
 
@@ -383,6 +386,7 @@
   function openToc() {
     buildToc();
     if (tocSearch) { tocSearch.value = ""; filterToc(""); }
+    track("open_index");
     tocDim.classList.add("show"); toc.classList.add("show"); toc.setAttribute("aria-hidden", "false");
   }
   function closeToc() { tocDim.classList.remove("show"); toc.classList.remove("show"); toc.setAttribute("aria-hidden", "true"); }
@@ -470,6 +474,7 @@
 
   function openMarks() {
     buildMarksList();
+    track("open_favorites", { count: Object.keys(MARKS).length });
     marksDim.classList.add("show"); marksScreen.classList.add("show"); marksScreen.setAttribute("aria-hidden", "false");
   }
   function closeMarks() { marksDim.classList.remove("show"); marksScreen.classList.remove("show"); marksScreen.setAttribute("aria-hidden", "true"); }
@@ -543,6 +548,7 @@
   function setViewMode(m) {
     viewMode = m === "translation" ? "translation" : "mushaf";
     persist("view", viewMode);
+    track("view_mode", { mode: viewMode });
     applyViewMode();
     syncSettingsUI();
   }
@@ -572,6 +578,7 @@
     if (color) { MARKS[markKey(s, a)] = color; lastMarkColor = color; persist("markColor", color); }
     else delete MARKS[markKey(s, a)];
     persist("marks", JSON.stringify(MARKS));
+    track(color ? "mark_add" : "mark_remove", { ayah: s + ":" + a, color: color || "" });
     renderPageMarks();
   }
 
@@ -619,6 +626,7 @@
   }
   function openSettings() {
     syncSettingsUI();
+    track("open_settings");
     settingsDim.classList.add("show");
     settings.classList.add("show");
     settings.setAttribute("aria-hidden", "false");
@@ -787,6 +795,7 @@
     var e = SEL[id];
     if (!e) return;
     state.selected = id;
+    track("ayah_select", { ayah: e.sa ? e.sa.s + ":" + e.sa.a : id });
     setFabVisible(false, true);
     closeMenu();
     renderHighlight(e);
