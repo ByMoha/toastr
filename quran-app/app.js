@@ -75,6 +75,16 @@
     var j = window.Data && Data.juzOf(p);
     return j ? "الجزء " + JUZ_NAMES[j - 1] : "";
   }
+  // hizb (½-juz) of a page: each juz spans two hizbs; split its page range
+  function hizbLabel(p) {
+    if (!(window.Data && Data.juzOf)) return "";
+    var j = Data.juzOf(p); if (!j) return "";
+    var jp = Data.juzpage || {}, p0 = 1e9, p1 = -1;
+    for (var k in jp) { if (jp[k] === j) { var pn = +k; if (pn < p0) p0 = pn; if (pn > p1) p1 = pn; } }
+    if (p1 < 0) return "";
+    var hizb = p <= (p0 + p1) / 2 ? 2 * j - 1 : 2 * j;
+    return "الحزب " + window.toArabicDigits(hizb);
+  }
 
   // geometry of the current art inside the stage (used by highlight + sheet clips)
   var G = { offX: 0, offY: 0, bgW: STAGE_W, bgH: STAGE_H };
@@ -266,11 +276,13 @@
           Data.pageAyat(p).forEach(function (sa) { if (all.indexOf(sa[0]) < 0) all.push(sa[0]); });
         }
         var shown = starting.length ? starting : all.slice(0, 1);
-        var frame = document.querySelector(".juz-frame");
-        frame.classList.toggle("one-surah", shown.length < 2);
-        document.getElementById("hdrJuz").textContent = artJuzLabel(a, p);
-        document.getElementById("hdrS1").textContent = shown[0] != null ? "سُورَةُ " + Data.surahName(shown[0]) : "";
-        document.getElementById("hdrS2").textContent = shown[1] != null ? "سُورَةُ " + Data.surahName(shown[1]) : "";
+        // header zones: juz (right) · first surah (middle) · second surah if the
+        // page carries one, otherwise the hizb (left)
+        var elJ = document.getElementById("hdrJuz"), el1 = document.getElementById("hdrS1"), el2 = document.getElementById("hdrS2");
+        elJ.textContent = artJuzLabel(a, p);
+        el1.textContent = shown[0] != null ? "سُورَةُ " + Data.surahName(shown[0]) : "";
+        if (shown[1] != null) el2.textContent = "سُورَةُ " + Data.surahName(shown[1]);
+        else { var hz = hizbLabel(p); el2.textContent = hz || ""; }
       });
     }
     stage.classList.remove("pagemode");

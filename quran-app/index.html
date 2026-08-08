@@ -17,9 +17,13 @@
       <!-- Page-mode chrome: ornate juz header, surah banners, page number -->
       <div class="page-decor" aria-hidden="true">
         <div class="juz-frame">
-          <span class="hdr-juz" id="hdrJuz"></span>
-          <span class="hdr-s1" id="hdrS1"></span>
-          <span class="hdr-s2" id="hdrS2"></span>
+          <div class="hdr-row" dir="rtl">
+            <span class="hdr-item" id="hdrJuz"></span>
+            <span class="hdr-sep" aria-hidden="true"></span>
+            <span class="hdr-item" id="hdrS1"></span>
+            <span class="hdr-sep" id="hdrSepL" aria-hidden="true"></span>
+            <span class="hdr-item" id="hdrS2"></span>
+          </div>
         </div>
         <div id="bannerLayer"></div>
         <div class="page-num" id="pageNum"></div>

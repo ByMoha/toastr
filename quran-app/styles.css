@@ -124,16 +124,22 @@ body{
   filter:var(--tag-tint);
 }
 .page-num .pn-val{ position:relative; z-index:1; line-height:1; transform:translateY(-3px); }
-.juz-frame span{
-  position:absolute; top:50%; transform:translateY(-54%);
-  white-space:nowrap;
+/* cartouche interior ≈ x 178..626: a centred flex row holds juz · surah · hizb
+   (or the second surah), evenly spaced with circular dot separators between. */
+.hdr-row{
+  position:absolute; left:178px; width:448px; top:50%;
+  transform:translateY(-54%); z-index:1;
+  display:flex; align-items:center; justify-content:center; gap:14px;
 }
-/* cartouche interior ≈ x 178..626, three packed zones as in the design:
-   juz (right) · first surah (middle) · second surah (left) */
-.hdr-juz{ right:184px; }
-.hdr-s1{ left:352px; transform:translate(-50%,-54%); }
-.hdr-s2{ left:184px; }
-.juz-frame.one-surah .hdr-s1{ left:300px; }
+.hdr-item{
+  white-space:nowrap; flex:0 1 auto; min-width:0;
+  overflow:hidden; text-overflow:ellipsis;
+}
+.hdr-sep{
+  flex:0 0 auto; width:7px; height:7px; border-radius:50%;
+  background:var(--tag-num); opacity:.85;
+}
+.hdr-item:empty, .hdr-item:empty + .hdr-sep, .hdr-sep:last-child{ display:none; }
 .stage.pagemode .page-slot{
   display:block; position:absolute; z-index:4; pointer-events:none;
   background:var(--art) 0 0 / 100% 100% no-repeat;
@@ -535,11 +541,12 @@ body[data-deco="dark"] .toc-row{ border-bottom-color:#3a3a3d; }
 .toc-row:active{ background:#f5f5f6; }
 body[data-deco="dark"] .toc-row:active{ background:#38383b; }
 .toc-num{
-  flex:0 0 auto; width:52px; height:52px; border-radius:14px;
+  flex:0 0 auto; width:56px; height:56px; border-radius:15px;
   background:color-mix(in srgb, var(--gold) 14%, #fff);
   color:var(--tag-num);
   display:flex; align-items:center; justify-content:center;
-  font:600 24px/1 "HafsSmart","Amiri Quran",serif;
+  /* HafsSmart digit glyphs sit small in the em box — size up so they fill */
+  font:600 62px/1 "HafsSmart","Amiri Quran",serif; overflow:hidden;
 }
 body[data-deco="dark"] .toc-num{ background:#3a352c; }
 .toc-name{
@@ -550,7 +557,7 @@ body[data-deco="dark"] .toc-num{ background:#3a352c; }
 body[data-deco="dark"] .toc-name{ color:#e8e8ea; }
 .toc-page{
   flex:0 0 auto;
-  font:24px/1 "HafsSmart","Amiri Quran","Scheherazade New",serif; color:#9a9a9e;
+  font:52px/1 "HafsSmart","Amiri Quran","Scheherazade New",serif; color:#9a9a9e;
 }
 
 /* saved-marks (favorites) — cards with swipe-to-delete */
@@ -645,7 +652,7 @@ body[data-deco="dark"] .mc-text{ color:#e8e6e0; }
   border:1px solid #eceae4;
 }
 .rw-card .rw-name{
-  font:26px/1.2 "Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
+  font:26px/1.2 "HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;
   color:#1c1c1e;
 }
 
@@ -679,7 +686,7 @@ body[data-deco="dark"] .mc-text{ color:#e8e6e0; }
   background:repeating-linear-gradient(#c9c9cd 0 3px, transparent 3px 12px);
 }
 .view-name{
-  font:26px/1.2 "Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif; color:#1c1c1e;
+  font:26px/1.2 "HafsSmart","Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif; color:#1c1c1e;
 }
 .view-card.active .view-name{ color:var(--gold); }
 body[data-deco="dark"] .view-card{ background:#2c2c2e; }
