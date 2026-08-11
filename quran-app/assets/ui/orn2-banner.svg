@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 84">
+  <!-- original ornament, dome side-pieces style; used as a mask and tinted -->
+  <g id="side">
+    <path fill-rule="evenodd" d="M10 42c15-27 46-36 82-36 42 0 76 13 98 36-22 23-56 36-98 36-36 0-67-9-82-36zm14 0c13-21 39-28 68-28 34 0 62 11 80 28-18 17-46 28-80 28-29 0-55-7-68-28z"/>
+    <circle cx="92" cy="42" r="10"/>
+    <path d="M118 30c8-3 15-1 18 4-6-1-12 0-16 4zM118 54c8 3 15 1 18-4-6 1-12 0-16-4z"/>
+    <circle cx="62" cy="42" r="6"/>
+    <circle cx="6" cy="28" r="4.5"/>
+    <circle cx="6" cy="56" r="4.5"/>
+    <path d="M2 34c-3 5-3 11 0 16 2-3 2-13 0-16z"/>
+  </g>
+  <use href="#side" transform="matrix(-1 0 0 1 768 0)"/>
+  <rect x="196" y="34.5" width="376" height="3.2" rx="1.6"/>
+  <rect x="196" y="46.3" width="376" height="3.2" rx="1.6"/>
+  <path d="M384 30l7 6-7 6-7-6z"/>
+</svg>

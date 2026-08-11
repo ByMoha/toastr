@@ -1,0 +1,4 @@
+work/
+assets/ref/
+*.log
+.DS_Store

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;background:#fefefa}
+  #art{position:relative;width:804px;height:1748px}
+  #art>img{position:absolute;inset:0;width:804px;height:1748px}
+  .tag{position:absolute;left:10px;top:10px;background:#f5efe4;color:#7a5a2a;
+       font:12px/1.4 -apple-system,sans-serif;padding:3px 8px;border-radius:6px;z-index:9}
+</style></head>
+<body>
+  <div id="art">
+    <img src="/assets/img/base-notags.png" alt="page art without aya-tags">
+    <!-- Medallion overlay injected here -->
+    <div class="tag">page art = medallion-less · aya-tags = app overlay (placeholder rosette)</div>
+  </div>
+  <script src="/data.js"></script>
+  <script src="/medallion.js"></script>
+  <script>
+    fetch('/assets/data/layout/hafs/596.json').then(r=>r.json()).then(doc=>{
+      const layer = Medallion.layer(doc.medallions, doc.viewBox, {size:46});
+      document.getElementById('art').appendChild(layer);
+    });
+  </script>
+</body></html>
