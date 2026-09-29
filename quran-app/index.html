@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#fefefa" />
+<title>القرآن الكريم</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app" id="app">
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+
+      <!-- Base reading page (screen 1) is the stage background image (var --art) -->
+
+      <!-- Page-mode chrome: ornate juz header, surah banners, page number -->
+      <div class="page-decor" aria-hidden="true">
+        <div class="juz-frame">
+          <div class="hdr-row" dir="rtl">
+            <span class="hdr-item" id="hdrJuz"></span>
+            <span class="hdr-sep" aria-hidden="true"></span>
+            <span class="hdr-item" id="hdrS1"></span>
+            <span class="hdr-sep" id="hdrSepL" aria-hidden="true"></span>
+            <span class="hdr-item" id="hdrS2"></span>
+          </div>
+        </div>
+        <div id="bannerLayer"></div>
+        <div class="page-num" id="pageNum"></div>
+      </div>
+
+      <!-- App-drawn aya-tag overlay (shown when the page art is medallion-less) -->
+      <div class="med-layer" id="medLayer" aria-hidden="true"></div>
+
+      <!-- Real riwāya page SVG, rendered into the page slot (page mode only) -->
+      <div class="page-slot" id="pageSlot" aria-hidden="true"></div>
+      <!-- persistent colour marks for saved ayahs (multiplied over the page) -->
+      <div class="marks" id="marksLayer" aria-hidden="true"></div>
+      <div class="status-strip" aria-hidden="true"></div>
+
+      <!-- Transparent per-ayah tap targets -->
+      <div class="hits" id="hits"></div>
+
+      <!-- International (translation) view: per-ayah cards, shown when the
+           reading mode is switched to الترجمة in settings -->
+      <div class="intl-view" id="intlView" aria-hidden="true"></div>
+
+      <!-- Dim + highlight overlay (screens 2 & 3) -->
+      <div class="overlay" id="overlay" aria-hidden="true">
+        <div class="dim" id="dim"></div>
+        <div class="hl" id="hl"></div>
+      </div>
+
+      <!-- Bottom sheet (screen 3) -->
+      <div class="sheet" id="sheet" aria-hidden="true">
+        <div class="sheet-grabber"></div>
+        <!-- audio scrubber, shown while a recitation is playing -->
+        <div class="sheet-progress" id="sheetProgress" hidden>
+          <div class="sp-track" id="spTrack">
+            <div class="sp-fill" id="spFill"></div>
+            <div class="sp-knob" id="spKnob"></div>
+          </div>
+          <div class="sp-times"><span id="spCur">0:00</span><span id="spDur">0:00</span></div>
+        </div>
+        <div class="sheet-actions">
+          <button class="pill" id="actShare" aria-label="مشاركة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 15V3.5"/><path d="M8.5 6.8 12 3.2l3.5 3.6"/>
+              <path d="M7 10H6a2.2 2.2 0 0 0-2.2 2.2v6.4A2.2 2.2 0 0 0 6 20.8h12a2.2 2.2 0 0 0 2.2-2.2v-6.4A2.2 2.2 0 0 0 18 10h-1"/>
+            </svg>
+          </button>
+          <button class="pill" id="actPlay" aria-label="استماع">
+            <svg class="ic-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>
+            <svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5h3.2v15H7zM13.8 4.5H17v15h-3.2z"/></svg>
+          </button>
+          <button class="pill" id="actBookmark" aria-label="حفظ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/>
+            </svg>
+          </button>
+        </div>
+        <!-- mark colour picker: tap a colour to mark this ayah with it -->
+        <div class="sheet-marks" id="sheetMarks">
+          <span class="mk-label">لون العلامة</span>
+          <div class="mk-swatches" id="mkSwatches">
+            <button class="mk-sw" data-c="#c8a34e" style="--c:#c8a34e" aria-label="ذهبي"></button>
+            <button class="mk-sw" data-c="#5c9a68" style="--c:#5c9a68" aria-label="أخضر"></button>
+            <button class="mk-sw" data-c="#5486b0" style="--c:#5486b0" aria-label="أزرق"></button>
+            <button class="mk-sw" data-c="#a86a9e" style="--c:#a86a9e" aria-label="بنفسجي"></button>
+            <button class="mk-sw" data-c="#c76b6b" style="--c:#c76b6b" aria-label="وردي"></button>
+          </div>
+        </div>
+        <div class="sheet-card" id="sheetCard">
+          <div class="sheet-ayah" id="sheetAyah"></div>
+          <div class="sheet-gharib" id="sheetGharib" dir="rtl"></div>
+        </div>
+      </div>
+
+      <!-- Floating primary menu: a Material-style speed dial. Uniform mini-FAB
+           actions slide out of the primary button, which stays anchored at the
+           side and morphs its icon from a menu to a close mark. -->
+      <div class="fabwrap" id="fabwrap" data-open="false" aria-hidden="true">
+        <!-- action buttons: identical mini-FABs, each with its own elevation -->
+        <button class="fab-item i1" data-i="1" aria-label="الفهرس">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h11"/><path d="M8 12h11"/><path d="M8 18h11"/><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button class="fab-item i2" data-i="2" aria-label="العلامات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6L5.5 20.5v-16a1 1 0 0 1 1-1Z"/></svg>
+        </button>
+        <button class="fab-item i3" data-i="3" aria-label="بحث">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.6-3.6"/></svg>
+        </button>
+        <button class="fab-item i4" data-i="4" aria-label="الإعدادات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>
+        </button>
+        <button class="fab" id="fab" aria-label="القائمة">
+          <span class="fab-icon" id="fabIcon">
+            <svg viewBox="0 0 40 40" aria-hidden="true">
+              <rect class="bar b1" x="8" y="15" width="24" height="3.4" rx="1.7"/>
+              <rect class="bar b2" x="8" y="22" width="24" height="3.4" rx="1.7"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <!-- Table of contents (opened from the menu's فهرس bubble) -->
+      <div class="toc-dim" id="tocDim" aria-hidden="true"></div>
+      <div class="toc" id="toc" aria-hidden="true" dir="rtl">
+        <div class="sheet-grabber"></div>
+        <h2 class="settings-title">الفهرس</h2>
+        <div class="toc-search">
+          <svg class="toc-search-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+          <input type="search" id="tocSearch" class="toc-search-input" placeholder="ابحث باسم السورة أو رقمها…" dir="rtl" autocomplete="off" enterkeyhint="search">
+        </div>
+        <div class="toc-list" id="tocList">
+          <div class="toc-empty" id="tocEmpty" hidden>لا توجد نتائج</div>
+        </div>
+      </div>
+
+      <!-- Saved marks / favorites (opened from the menu's العلامات bubble) -->
+      <div class="toc-dim" id="marksDim" aria-hidden="true"></div>
+      <div class="toc marks-screen" id="marksScreen" aria-hidden="true" dir="rtl">
+        <div class="sheet-grabber"></div>
+        <h2 class="settings-title">العلامات</h2>
+        <div class="toc-list" id="marksList">
+          <div class="toc-empty" id="marksEmpty" hidden>لا توجد علامات محفوظة</div>
+        </div>
+      </div>
+
+      <!-- Settings (opened from the expanded menu's gear) -->
+      <div class="settings-dim" id="settingsDim" aria-hidden="true"></div>
+      <div class="settings" id="settings" aria-hidden="true" dir="rtl">
+        <div class="sheet-grabber"></div>
+        <h2 class="settings-title">الإعدادات</h2>
+
+        <div class="settings-section">
+          <div class="settings-label">وضع القراءة</div>
+          <div class="view-cards" id="viewList">
+            <button class="view-card" data-view="mushaf">
+              <span class="view-thumb vt-mushaf" aria-hidden="true"></span>
+              <span class="view-name">المصحف</span>
+            </button>
+            <button class="view-card" data-view="translation">
+              <span class="view-thumb vt-intl" aria-hidden="true"></span>
+              <span class="view-name">الترجمة</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">الرواية</div>
+          <div class="riwaya-cards" id="riwayaList">
+            <button class="rw-card" data-art="hafs-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">حفص</span>
+            </button>
+            <button class="rw-card" data-art="warsh-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">ورش</span>
+            </button>
+            <button class="rw-card" data-art="qaloon-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">قالون</span>
+            </button>
+            <button class="rw-card" data-art="douri-svg">
+              <span class="rw-thumb" aria-hidden="true"></span>
+              <span class="rw-name">الدوري</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">المظهر ولون الزخرفة</div>
+          <div class="theme-chips" id="swatchList">
+            <button class="theme-chip" data-deco="sepia" style="--sw:#b07a3c;--pp:#fefefa" aria-label="ذهبي">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">ذهبي</span>
+            </button>
+            <button class="theme-chip" data-deco="green" style="--sw:#57996a;--pp:#f2f8f2" aria-label="أخضر">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">أخضر</span>
+            </button>
+            <button class="theme-chip" data-deco="blue" style="--sw:#547ca7;--pp:#f1f6fb" aria-label="أزرق">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">أزرق</span>
+            </button>
+            <button class="theme-chip" data-deco="mauve" style="--sw:#a2689a;--pp:#faf3f8" aria-label="بنفسجي">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">بنفسجي</span>
+            </button>
+            <button class="theme-chip" data-deco="slate" style="--sw:#84848a;--pp:#f6f6f7" aria-label="رمادي">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">رمادي</span>
+            </button>
+            <button class="theme-chip" data-deco="dark" style="--sw:#c9a45e;--pp:#201f1d;--tx:#e8e2d5" aria-label="داكن">
+              <span class="chip-page" aria-hidden="true"><i></i><i></i><b></b></span>
+              <span class="chip-name">داكن</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">نمط الزخرفة</div>
+          <div class="orn-chips" id="ornList">
+            <button class="orn-chip" data-orn="1">
+              <span class="orn-prev p1" aria-hidden="true"></span>
+              <span class="chip-name">مُقوَّس</span>
+            </button>
+            <button class="orn-chip" data-orn="2">
+              <span class="orn-prev p2" aria-hidden="true"></span>
+              <span class="chip-name">مُسنَّن</span>
+            </button>
+            <button class="orn-chip" data-orn="3">
+              <span class="orn-prev p3" aria-hidden="true"></span>
+              <span class="chip-name">مُستطيل</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script src="analytics.js"></script>
+<script src="data.js"></script>
+<script src="medallion.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
